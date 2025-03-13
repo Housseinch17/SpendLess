@@ -1,5 +1,6 @@
 package com.example.spendless.data.datasource.local
 
+import android.util.Log
 import com.example.spendless.data.model.Username
 import com.example.spendless.data.roomdb.UsernameDAO
 import kotlinx.coroutines.CoroutineDispatcher
@@ -13,8 +14,13 @@ class LocalDataSourceImpl @Inject constructor(
     private val coroutineDispatcher: CoroutineDispatcher,
     private val usernameDAO: UsernameDAO,
 ): LocalDataSource {
-    override suspend fun saveUsername(username: Username) = withContext(coroutineDispatcher){
-        usernameDAO.saveUsername(username)
+    override suspend fun saveUsername(username: Username): Unit = withContext(coroutineDispatcher){
+        try {
+            usernameDAO.saveUsername(username)
+            Log.d("MyTag","saveUsername successfully completed")
+        }catch (e: Exception){
+            Log.d("MyTag","saveUsername failed  ${e.message}")
+        }
     }
 
     override suspend fun getAllUsername(): Flow<List<Username>> = withContext(coroutineDispatcher){

@@ -116,8 +116,7 @@ fun KeyBoardItem(
 ) {
     if (text.isNotEmpty() && text != "remove") {
         TextButton(
-            modifier = Modifier
-                .size(48.dp)
+            modifier = Modifier.fillMaxWidth().height(60.dp)
                 .background(color = Schemes_Keyboard_Primary, shape = RoundedCornerShape(32.dp)),
             onClick = {
                 if (isCreatePin)
@@ -135,8 +134,7 @@ fun KeyBoardItem(
         }
     } else if (text == "remove") {
         TextButton(
-            modifier = Modifier
-                .size(48.dp)
+            modifier = Modifier.fillMaxWidth().height(60.dp)
                 .background(color = Schemes_Keyboard_Primary, shape = RoundedCornerShape(32.dp)),
             onClick = {
                 if (isCreatePin)

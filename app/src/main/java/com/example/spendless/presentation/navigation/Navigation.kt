@@ -140,7 +140,6 @@ fun Navigation(
             //lifecycle to hide banner when pause/stop(navigating)
             val lifecycleOwner = LocalLifecycleOwner.current
 
-
             LaunchedEffect(Unit) {
                 repeatPinPageViewModel.onActions(RepeatPinActions.UpdateUsername(args.username))
             }

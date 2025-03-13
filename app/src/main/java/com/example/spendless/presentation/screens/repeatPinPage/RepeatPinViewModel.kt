@@ -1,5 +1,6 @@
 package com.example.spendless.presentation.screens.repeatPinPage
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.data.model.Username
@@ -95,6 +96,7 @@ class RepeatPinViewModel @Inject constructor(
         if (newRepeatPin.length == 5) {
             if (newRepeatPin != _repeatPinUiState.value.username.pin.toString()) {
                 _events.send(RepeatPinEvents.ShowBanner)
+                resetUiState()
             } else {
                 try {
                     localUseCase.saveUsername(username = _repeatPinUiState.value.username)
@@ -106,6 +108,10 @@ class RepeatPinViewModel @Inject constructor(
         }
     }
 
+    private fun resetUiState(){
+        _repeatPinUiState.value = RepeatPinUiState().copy(username = _repeatPinUiState.value.username)
+        Log.d("MyTag","${_repeatPinUiState.value}")
+    }
     private suspend fun navigateBack() {
         _events.send(RepeatPinEvents.NavigateBack)
     }
