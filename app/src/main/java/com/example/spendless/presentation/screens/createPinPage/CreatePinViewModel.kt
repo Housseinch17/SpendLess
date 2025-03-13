@@ -1,6 +1,8 @@
 package com.example.spendless.presentation.screens.createPinPage
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.spendless.data.model.Username
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -9,14 +11,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed interface CreatePinEvents {
-    data class RepeatPinPage (val username: Username): CreatePinEvents
+    data class RepeatPinPage(val username: Username) : CreatePinEvents
+    data object NavigateBack : CreatePinEvents
 }
 
 sealed interface CreatePinActions {
     data class UpdateUsername(val username: String) : CreatePinActions
+    data class UpdatePin(val pin: String) : CreatePinActions
+    data object RemovePin : CreatePinActions
+    data object NavigateBack : CreatePinActions
 }
 
 @HiltViewModel
@@ -29,10 +36,36 @@ class CreatePinViewModel @Inject constructor() : ViewModel() {
     private val _events: Channel<CreatePinEvents> = Channel()
     val events = _events.receiveAsFlow()
 
-
     fun onActions(createPinActions: CreatePinActions) {
         when (createPinActions) {
             is CreatePinActions.UpdateUsername -> updateUsername(createPinActions.username)
+            CreatePinActions.NavigateBack -> {
+                viewModelScope.launch {
+                    navigateBack()
+                }
+            }
+
+            is CreatePinActions.UpdatePin -> {
+                viewModelScope.launch {
+                    updatePin(createPinActions.pin)
+                }
+            }
+
+            CreatePinActions.RemovePin -> removePin()
+        }
+    }
+
+    private fun removePin() {
+        if (_createPinUiState.value.pin.isNotEmpty()) {
+            _createPinUiState.update { newState ->
+                newState.copy(pin = newState.pin.dropLast(1))
+            }
+            //update ellipseList
+            val ellipseList = updateEllipseList(_createPinUiState.value.pin)
+
+            _createPinUiState.update { newState ->
+                newState.copy(ellipseList = ellipseList)
+            }
         }
     }
 
@@ -42,4 +75,39 @@ class CreatePinViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    private suspend fun updatePin(pin: String) {
+        _createPinUiState.update { newState ->
+            newState.copy(pin = newState.pin + pin)
+        }
+
+        //update ellipseList
+        val ellipseList = updateEllipseList(_createPinUiState.value.pin)
+
+        _createPinUiState.update { newState ->
+            newState.copy(ellipseList = ellipseList)
+        }
+
+        Log.d("MyTag", _createPinUiState.value.pin)
+        Log.d("MyTag","${_createPinUiState.value.ellipseList}")
+
+
+        val newPin = _createPinUiState.value.pin
+        if (newPin.length == 5) {
+            val username = Username(username = _createPinUiState.value.username, pin = newPin.toInt())
+            Log.d("MyTag", "username: $username")
+            _events.send(CreatePinEvents.RepeatPinPage(username = username))
+        }
+    }
+
+    private suspend fun navigateBack() {
+        _events.send(CreatePinEvents.NavigateBack)
+    }
+
+}
+
+private fun updateEllipseList(pin: String): List<Boolean> {
+    //list size 5 fixed
+    //pin digits will show true if exists and false if empty
+    // pin = 32 -> 2 digits -> true,true,false,false,false,
+    return List(5) { index -> index < pin.length }
 }

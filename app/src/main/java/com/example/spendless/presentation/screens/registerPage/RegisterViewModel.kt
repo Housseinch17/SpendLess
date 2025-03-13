@@ -20,13 +20,13 @@ sealed interface RegisterEvents {
     data object NavigateToLogInPage : RegisterEvents
     data object ShowBanner : RegisterEvents
     data object ShowError : RegisterEvents
-
 }
 
 sealed interface RegisterActions {
     data class UpdateUsername(val usernameValue: String) : RegisterActions
     data object NextButton : RegisterActions
     data object AlreadyHaveAnAccount : RegisterActions
+
 }
 
 @HiltViewModel
@@ -94,9 +94,7 @@ class RegisterViewModel @Inject constructor(
                 _events.send(RegisterEvents.NavigateToPinPage(username = _registerUiState.value.usernameValue))
             }
         }else{
-            Log.d("MyTag","Here")
             _events.send(RegisterEvents.ShowError)
-            return
         }
     }
 

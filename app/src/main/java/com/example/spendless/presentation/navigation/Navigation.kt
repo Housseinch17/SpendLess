@@ -19,13 +19,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.spendless.R
+import com.example.spendless.data.model.Username
+import com.example.spendless.presentation.screens.createPinPage.CreatePinActions
 import com.example.spendless.presentation.screens.createPinPage.CreatePinEvents
+import com.example.spendless.presentation.screens.createPinPage.CreatePinPage
 import com.example.spendless.presentation.screens.createPinPage.CreatePinViewModel
 import com.example.spendless.presentation.screens.registerPage.RegisterEvents
 import com.example.spendless.presentation.screens.registerPage.RegisterPage
 import com.example.spendless.presentation.screens.registerPage.RegisterViewModel
 import com.example.spendless.presentation.screens.shared.SharedActions
 import com.example.spendless.presentation.util.BannerHandler
+import com.example.spendless.presentation.util.CustomNavType
+import kotlin.reflect.typeOf
 
 @Composable
 fun Navigation(
@@ -59,7 +64,7 @@ fun Navigation(
                         }
 
                         is RegisterEvents.NavigateToPinPage -> {
-                            navHostController.navigate(NavigationScreens.PinPage(username = events.username))
+                            navHostController.navigate(NavigationScreens.PinPage(user = events.username))
                         }
 
                         RegisterEvents.ShowBanner -> {
@@ -90,31 +95,43 @@ fun Navigation(
         }
 
         composable<NavigationScreens.PinPage> { entry ->
-            val args = entry.toRoute<NavigationScreens.PinPage>()
-//            Log.d("MyTag", args.username)
-
             val createPinViewModel = hiltViewModel<CreatePinViewModel>()
             val createPinUiState by createPinViewModel.createPinUiState.collectAsStateWithLifecycle()
+
+            val args = entry.toRoute<NavigationScreens.PinPage>()
+
+            LaunchedEffect(Unit) {
+                createPinViewModel.onActions(CreatePinActions.UpdateUsername(args.user))
+            }
 
             LaunchedEffect(createPinViewModel.events) {
                 createPinViewModel.events.collect { events ->
                     when (events) {
                         is CreatePinEvents.RepeatPinPage -> {
-                            navHostController.navigate(NavigationScreens.RepeatPinPage)
+                            navHostController.navigate(NavigationScreens.RepeatPinPage(username = events.username))
                         }
-                    }
 
+                        CreatePinEvents.NavigateBack -> navHostController.navigate(NavigationScreens.RepeatPinPage)
+                    }
                 }
             }
 
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = "PinPage")
-            }
+
+            CreatePinPage(
+                modifier = Modifier.fillMaxSize(),
+                createPinPageUiState = createPinUiState,
+                createPinActions = createPinViewModel::onActions,
+            )
+
         }
 
-
-        composable<NavigationScreens.RepeatPinPage> { entry ->
+        composable<NavigationScreens.RepeatPinPage>(
+            typeMap = mapOf(
+                typeOf<Username>() to CustomNavType.username
+            )
+        ) { entry ->
             val args = entry.toRoute<NavigationScreens.RepeatPinPage>()
+            Log.d("MyTag", "reapeatPage: ${args.username}")
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(text = "RepeatPinPage")
             }
