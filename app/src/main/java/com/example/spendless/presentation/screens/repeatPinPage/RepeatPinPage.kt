@@ -1,4 +1,4 @@
-package com.example.spendless.presentation.screens.createPinPage
+package com.example.spendless.presentation.screens.repeatPinPage
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,10 +26,10 @@ import com.example.spendless.presentation.util.SharedComponent
 import com.example.spendless.presentation.util.Utils
 
 @Composable
-fun CreatePinPage(
+fun RepeatPinPage(
     modifier: Modifier,
-    createPinPageUiState: CreatePinUiState,
-    createPinActions: (CreatePinActions) -> Unit,
+    repeatPinPageUiState: RepeatPinUiState,
+    repeatPinActions: (RepeatPinActions) -> Unit,
 ) {
     Column(
         modifier = modifier,
@@ -37,9 +37,9 @@ fun CreatePinPage(
     ) {
         SharedComponent(
             backButton = true,
-            firstText = stringResource(R.string.create_pin),
-            secondText = stringResource(R.string.use_pin_to_log_in),
-            navigateBack = { createPinActions(CreatePinActions.NavigateBack) }
+            firstText = stringResource(R.string.repeat_pin),
+            secondText = stringResource(R.string.enter_pin),
+            navigateBack = { repeatPinActions(RepeatPinActions.NavigateBack) }
         )
 
         LazyRow(
@@ -47,7 +47,7 @@ fun CreatePinPage(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            items(createPinPageUiState.ellipseList) { item ->
+            items(repeatPinPageUiState.ellipseList) { item ->
                 Icon(
                     painter = painterResource(R.drawable.ellipse_icon), contentDescription = null,
                     tint = if (item) {
@@ -70,8 +70,9 @@ fun CreatePinPage(
         ) {
             items(Utils.keyboardSet) { keyboardItem ->
                 KeyBoardItem(
+                    isCreatePin = false,
                     text = keyboardItem,
-                    onCreatePinActions = createPinActions,
+                    onRepeatPinActions = repeatPinActions,
                 )
             }
         }

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.data.model.Username
+import com.example.spendless.presentation.util.Utils.updateEllipseList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -87,14 +88,14 @@ class CreatePinViewModel @Inject constructor() : ViewModel() {
             newState.copy(ellipseList = ellipseList)
         }
 
-        Log.d("MyTag", _createPinUiState.value.pin)
-        Log.d("MyTag","${_createPinUiState.value.ellipseList}")
+        Log.d("MyTag", "createPin updatePin: ${_createPinUiState.value.pin}")
+        Log.d("MyTag","createPin updatePin: ${_createPinUiState.value.ellipseList}")
 
 
         val newPin = _createPinUiState.value.pin
         if (newPin.length == 5) {
             val username = Username(username = _createPinUiState.value.username, pin = newPin.toInt())
-            Log.d("MyTag", "username: $username")
+            Log.d("MyTag", "createPin updatePin: username: $username")
             _events.send(CreatePinEvents.RepeatPinPage(username = username))
         }
     }
@@ -103,11 +104,4 @@ class CreatePinViewModel @Inject constructor() : ViewModel() {
         _events.send(CreatePinEvents.NavigateBack)
     }
 
-}
-
-private fun updateEllipseList(pin: String): List<Boolean> {
-    //list size 5 fixed
-    //pin digits will show true if exists and false if empty
-    // pin = 32 -> 2 digits -> true,true,false,false,false,
-    return List(5) { index -> index < pin.length }
 }

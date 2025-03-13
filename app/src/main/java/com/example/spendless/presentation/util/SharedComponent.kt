@@ -32,6 +32,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.spendless.R
 import com.example.spendless.presentation.screens.createPinPage.CreatePinActions
+import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinActions
 import com.example.spendless.presentation.screens.shared.SharedActions
 import com.example.spendless.presentation.theme.Schemes_Error
 import com.example.spendless.presentation.theme.Schemes_Keyboard_OnPrimary
@@ -107,12 +108,24 @@ fun SharedComponent(
 }
 
 @Composable
-fun KeyBoardItem(text: String, onActions: (CreatePinActions) -> Unit) {
+fun KeyBoardItem(
+    text: String,
+    isCreatePin: Boolean = true,
+    onCreatePinActions: (CreatePinActions) -> Unit = {},
+    onRepeatPinActions: (RepeatPinActions) -> Unit = {},
+) {
     if (text.isNotEmpty() && text != "remove") {
         TextButton(
-            modifier = Modifier.size(48.dp)
+            modifier = Modifier
+                .size(48.dp)
                 .background(color = Schemes_Keyboard_Primary, shape = RoundedCornerShape(32.dp)),
-            onClick = { onActions(CreatePinActions.UpdatePin(text)) },
+            onClick = {
+                if (isCreatePin)
+                    onCreatePinActions(CreatePinActions.UpdatePin(text))
+                else {
+                    onRepeatPinActions(RepeatPinActions.UpdatePin(text))
+                }
+            },
         ) {
             Text(
                 text = text,
@@ -122,8 +135,16 @@ fun KeyBoardItem(text: String, onActions: (CreatePinActions) -> Unit) {
         }
     } else if (text == "remove") {
         TextButton(
-            modifier = Modifier.size(48.dp).background(color = Schemes_Keyboard_Primary,shape = RoundedCornerShape(32.dp)),
-            onClick = { onActions(CreatePinActions.RemovePin) },
+            modifier = Modifier
+                .size(48.dp)
+                .background(color = Schemes_Keyboard_Primary, shape = RoundedCornerShape(32.dp)),
+            onClick = {
+                if (isCreatePin)
+                    onCreatePinActions(CreatePinActions.RemovePin)
+                else {
+                    onRepeatPinActions(RepeatPinActions.RemovePin)
+                }
+            },
         ) {
             Icon(painter = painterResource(R.drawable.remove), contentDescription = null)
         }

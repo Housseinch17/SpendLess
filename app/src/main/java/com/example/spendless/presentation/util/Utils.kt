@@ -11,6 +11,13 @@ object Utils {
         BANNER_SHOW_TIME = bannerTime
     }
 
-    val keyboardSet: List<String> = listOf("1","2","3","4","5","6","7","8","9","","0","remove")
+    val keyboardSet: List<String> =
+        listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "remove")
 
+    fun updateEllipseList(pin: String): List<Boolean> {
+        //list size 5 fixed
+        //pin digits will show true if exists and false if empty
+        // pin = 32 -> 2 digits -> true,true,false,false,false,
+        return List(5) { index -> index < pin.length }
+    }
 }

@@ -1,6 +1,5 @@
 package com.example.spendless.presentation.navigation
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +26,10 @@ import com.example.spendless.presentation.screens.createPinPage.CreatePinViewMod
 import com.example.spendless.presentation.screens.registerPage.RegisterEvents
 import com.example.spendless.presentation.screens.registerPage.RegisterPage
 import com.example.spendless.presentation.screens.registerPage.RegisterViewModel
+import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinActions
+import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinEvents
+import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinPage
+import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinViewModel
 import com.example.spendless.presentation.screens.shared.SharedActions
 import com.example.spendless.presentation.util.BannerHandler
 import com.example.spendless.presentation.util.CustomNavType
@@ -52,7 +55,7 @@ fun Navigation(
             val registerViewModel = hiltViewModel<RegisterViewModel>()
             val registerUiState by registerViewModel.registerUiState.collectAsStateWithLifecycle()
 
-            //lifecycle to hide banner when pause/stop(navigating
+            //lifecycle to hide banner when pause/stop(navigating)
             val lifecycleOwner = LocalLifecycleOwner.current
 
 
@@ -131,10 +134,52 @@ fun Navigation(
             )
         ) { entry ->
             val args = entry.toRoute<NavigationScreens.RepeatPinPage>()
-            Log.d("MyTag", "reapeatPage: ${args.username}")
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = "RepeatPinPage")
+            val repeatPinPageViewModel = hiltViewModel<RepeatPinViewModel>()
+            val repeatPinUiState by repeatPinPageViewModel.repeatPinUiState.collectAsStateWithLifecycle()
+
+            //lifecycle to hide banner when pause/stop(navigating)
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+
+            LaunchedEffect(Unit) {
+                repeatPinPageViewModel.onActions(RepeatPinActions.UpdateUsername(args.username))
             }
+
+            LaunchedEffect(repeatPinPageViewModel.events) {
+                repeatPinPageViewModel.events.collect{ events->
+                    when(events){
+                        RepeatPinEvents.NavigateBack -> navHostController.navigateUp()
+                        RepeatPinEvents.AccountRegistered -> {
+                            navHostController.navigate(NavigationScreens.LogInPage){
+                                popUpTo(0){
+                                    inclusive = true
+                                }
+                            }
+                        }
+
+                        RepeatPinEvents.ShowBanner -> {
+                            val bannerText = context.getString(R.string.pins_doesnt_match)
+                            onActions(SharedActions.ShowBanner(bannerText = bannerText))
+                        }
+
+                        is RepeatPinEvents.Error -> {
+                            Toast.makeText(context, events.error, Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            }
+
+            BannerHandler(
+                onActions = onActions,
+                lifecycleOwner = lifecycleOwner
+            )
+
+
+            RepeatPinPage(
+                modifier = Modifier.fillMaxSize(),
+                repeatPinPageUiState = repeatPinUiState,
+                repeatPinActions = repeatPinPageViewModel::onActions,
+            )
         }
 
         composable<NavigationScreens.LogInPage> {

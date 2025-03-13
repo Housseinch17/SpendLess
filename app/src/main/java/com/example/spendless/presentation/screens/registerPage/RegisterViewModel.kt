@@ -104,7 +104,7 @@ class RegisterViewModel @Inject constructor(
         val isUsernameTaken = registerUiStateValue.usernameCreated.map {
             it.username
         }.contains(username)
-        Log.d("MyTag", "$isUsernameTaken")
+        Log.d("MyTag", "Register usernameAlreadyExists: $isUsernameTaken")
         _registerUiState.update { newState ->
             newState.copy(isUsernameTaken = isUsernameTaken)
         }
