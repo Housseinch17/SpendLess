@@ -1,5 +1,6 @@
 package com.example.spendless.presentation.navigation
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,9 @@ import com.example.spendless.presentation.screens.createPinPage.CreatePinActions
 import com.example.spendless.presentation.screens.createPinPage.CreatePinEvents
 import com.example.spendless.presentation.screens.createPinPage.CreatePinPage
 import com.example.spendless.presentation.screens.createPinPage.CreatePinViewModel
+import com.example.spendless.presentation.screens.loginPage.LogInEvents
+import com.example.spendless.presentation.screens.loginPage.LogInPage
+import com.example.spendless.presentation.screens.loginPage.LogInViewModel
 import com.example.spendless.presentation.screens.registerPage.RegisterEvents
 import com.example.spendless.presentation.screens.registerPage.RegisterPage
 import com.example.spendless.presentation.screens.registerPage.RegisterViewModel
@@ -145,12 +149,13 @@ fun Navigation(
             }
 
             LaunchedEffect(repeatPinPageViewModel.events) {
-                repeatPinPageViewModel.events.collect{ events->
-                    when(events){
+                repeatPinPageViewModel.events.collect { events ->
+                    when (events) {
                         RepeatPinEvents.NavigateBack -> navHostController.navigateUp()
-                        RepeatPinEvents.AccountRegistered -> {
-                            navHostController.navigate(NavigationScreens.LogInPage){
-                                popUpTo(0){
+
+                        is RepeatPinEvents.AccountRegistered -> {
+                            navHostController.navigate(NavigationScreens.OnboardingPage(username = events.username)) {
+                                popUpTo(0) {
                                     inclusive = true
                                 }
                             }
@@ -182,8 +187,46 @@ fun Navigation(
         }
 
         composable<NavigationScreens.LogInPage> {
+            val logInViewModel = hiltViewModel<LogInViewModel>()
+            val logInUiState by logInViewModel.logInUiState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(logInViewModel.events) {
+                logInViewModel.events.collect { events ->
+                    when (events) {
+                        LogInEvents.RegisterAccount -> navHostController.navigate(NavigationScreens.RegisterPage)
+                        is LogInEvents.ShowError -> Toast.makeText(
+                            context,
+                            events.error,
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                        is LogInEvents.LoggedIn -> navHostController.navigate(
+                            NavigationScreens.OnboardingPage(
+                                username = events.username
+                            )
+                        ) {
+                            popUpTo(0) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                }
+            }
+
+            LogInPage(
+                modifier = Modifier.fillMaxSize(),
+                logInUiState = logInUiState,
+                logInActions = logInViewModel::onActions
+            )
+        }
+
+        composable<NavigationScreens.OnboardingPage> { entry ->
+            val args = entry.toRoute<NavigationScreens.OnboardingPage>()
+            LaunchedEffect(Unit) {
+                Log.d("MyTag", args.username)
+            }
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = "LogInPage")
+                Text(modifier = Modifier, text = "This is dashboard")
             }
         }
     }

@@ -8,8 +8,14 @@
     <string name="next">Next</string>
     <string name="username_already_taken">This username has already been taken!</string>
     <string name="create_pin">Create PIN</string>
+    <string name="pin">pin</string>
     <string name="use_pin_to_log_in">Use PIN to login to your account</string>
     <string name="repeat_pin">Repeat Your PIN</string>
     <string name="enter_pin">Enter your PIN again</string>
     <string name="pins_doesnt_match">PINs don’t match. Try again</string>
+    <string name="welcome_back">Welcome back!</string>
+    <string name="enter_your_logIn_details">Enter you login details</string>
+    <string name="log_in">Log In</string>
+    <string name="new_to_spendLess">New to SpendLess?</string>
+    
 </resources>

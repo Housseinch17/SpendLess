@@ -2,7 +2,6 @@ package com.example.spendless.domain.usecase
 
 import com.example.spendless.data.model.Username
 import com.example.spendless.domain.repository.LocalRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class LocalUseCaseImpl @Inject constructor(
@@ -12,7 +11,11 @@ class LocalUseCaseImpl @Inject constructor(
         return localRepository.saveUsername(username)
     }
 
-    override suspend fun getAllUsername(): Flow<List<Username>> {
-        return localRepository.getAllUsername()
+    override suspend fun isUsernameExists(enteredUsername: String): Boolean {
+        return localRepository.isUsernameExists(enteredUsername = enteredUsername)
+    }
+
+    override suspend fun isValidUser(enteredUsername: String, enteredPin: Int): Boolean {
+        return localRepository.isValidUser(enteredUsername = enteredUsername, enteredPin = enteredPin)
     }
 }

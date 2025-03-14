@@ -31,7 +31,7 @@ sealed interface RegisterActions {
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val useCase: LocalUseCase,
+    private val localUseCase: LocalUseCase,
 ) : ViewModel() {
     private val _registerUiState: MutableStateFlow<RegisterUiState> =
         MutableStateFlow(RegisterUiState())
@@ -39,12 +39,6 @@ class RegisterViewModel @Inject constructor(
 
     private val _events: Channel<RegisterEvents> = Channel()
     val events = _events.receiveAsFlow()
-
-    init {
-        viewModelScope.launch {
-            getAllUsername()
-        }
-    }
 
     fun onActions(registerActions: RegisterActions) {
         when (registerActions) {
@@ -83,9 +77,10 @@ class RegisterViewModel @Inject constructor(
     private suspend fun next() {
         val usernameLength = _registerUiState.value.usernameValue.length
         if (usernameLength in 3..14) {
-            //update isUsernameTaken value
-            usernameAlreadyExists()
-            if (_registerUiState.value.isUsernameTaken) {
+            //check if username is taken
+            val isUsernameExists = isUsernameExists()
+            Log.d("MyTag","isUsernameExists: $isUsernameExists")
+            if (isUsernameExists) {
                 _events.send(RegisterEvents.ShowBanner)
                 _registerUiState.update { newState ->
                     newState.copy(isNextEnabled = false)
@@ -98,25 +93,9 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    private fun usernameAlreadyExists() {
-        val registerUiStateValue = _registerUiState.value
-        val username = registerUiStateValue.usernameValue
-        val isUsernameTaken = registerUiStateValue.usernameCreated.map {
-            it.username
-        }.contains(username)
-        Log.d("MyTag", "Register usernameAlreadyExists: $isUsernameTaken")
-        _registerUiState.update { newState ->
-            newState.copy(isUsernameTaken = isUsernameTaken)
-        }
-    }
-
-
-    private suspend fun getAllUsername() {
-        useCase.getAllUsername().collect { newUser ->
-            _registerUiState.update { newState ->
-                newState.copy(usernameCreated = newState.usernameCreated + newUser)
-            }
-        }
+    private suspend fun isUsernameExists(): Boolean {
+        val isUsernameExists = localUseCase.isUsernameExists(_registerUiState.value.usernameValue)
+        return isUsernameExists
     }
 
     private suspend fun alreadyHaveAccount() {

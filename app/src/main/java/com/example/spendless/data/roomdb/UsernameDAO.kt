@@ -5,14 +5,17 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.spendless.data.model.Username
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UsernameDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveUsername(username: Username)
 
-    //can use flow for live updates but prefer to implement refresh
-    @Query("SELECT * FROM username_table")
-    fun getAllUsername(): Flow<List<Username>>
+    @Query("SELECT EXISTS(SELECT 1 FROM username_table WHERE username = :enteredUsername)")
+    suspend fun isUsernameExists(enteredUsername: String): Boolean
+
+
+    @Query("SELECT EXISTS(SELECT 1 FROM username_table WHERE username = :enteredUsername AND pin = :enteredPin)")
+    suspend fun isValidUser(enteredUsername: String, enteredPin: Int): Boolean
+
 }

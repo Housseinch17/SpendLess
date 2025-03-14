@@ -6,9 +6,6 @@ import kotlinx.serialization.Serializable
 sealed interface NavigationScreens {
 
     @Serializable
-    data object LogInPage: NavigationScreens
-
-    @Serializable
     data object RegisterPage: NavigationScreens
 
     @Serializable
@@ -16,5 +13,11 @@ sealed interface NavigationScreens {
 
     @Serializable
     data class RepeatPinPage(val username: Username): NavigationScreens
+
+    @Serializable
+    data object LogInPage: NavigationScreens
+
+    @Serializable
+    data class OnboardingPage(val username: String): NavigationScreens
 
 }

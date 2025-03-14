@@ -1,6 +1,5 @@
 package com.example.spendless.presentation.screens.createPinPage
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.data.model.Username
@@ -88,14 +87,14 @@ class CreatePinViewModel @Inject constructor() : ViewModel() {
             newState.copy(ellipseList = ellipseList)
         }
 
-        Log.d("MyTag", "createPin updatePin: ${_createPinUiState.value.pin}")
-        Log.d("MyTag","createPin updatePin: ${_createPinUiState.value.ellipseList}")
+//        Log.d("MyTag", "createPin updatePin: ${_createPinUiState.value.pin}")
+//        Log.d("MyTag","createPin updatePin: ${_createPinUiState.value.ellipseList}")
 
 
         val newPin = _createPinUiState.value.pin
         if (newPin.length == 5) {
             val username = Username(username = _createPinUiState.value.username, pin = newPin.toInt())
-            Log.d("MyTag", "createPin updatePin: username: $username")
+//            Log.d("MyTag", "createPin updatePin: username: $username")
             _events.send(CreatePinEvents.RepeatPinPage(username = username))
         }
     }

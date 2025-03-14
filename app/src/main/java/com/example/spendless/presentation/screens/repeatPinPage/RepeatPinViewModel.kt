@@ -1,6 +1,5 @@
 package com.example.spendless.presentation.screens.repeatPinPage
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.data.model.Username
@@ -18,7 +17,7 @@ import javax.inject.Inject
 
 sealed interface RepeatPinEvents {
     data object NavigateBack : RepeatPinEvents
-    data object AccountRegistered : RepeatPinEvents
+    data class AccountRegistered(val username: String) : RepeatPinEvents
     data object ShowBanner : RepeatPinEvents
     data class Error(val error: String) : RepeatPinEvents
 }
@@ -100,7 +99,7 @@ class RepeatPinViewModel @Inject constructor(
             } else {
                 try {
                     localUseCase.saveUsername(username = _repeatPinUiState.value.username)
-                    _events.send(RepeatPinEvents.AccountRegistered)
+                    _events.send(RepeatPinEvents.AccountRegistered(_repeatPinUiState.value.username.username))
                 } catch (e: Exception) {
                     _events.send(RepeatPinEvents.Error(error = e.message.toString()))
                 }
@@ -110,7 +109,7 @@ class RepeatPinViewModel @Inject constructor(
 
     private fun resetUiState(){
         _repeatPinUiState.value = RepeatPinUiState().copy(username = _repeatPinUiState.value.username)
-        Log.d("MyTag","${_repeatPinUiState.value}")
+//        Log.d("MyTag","${_repeatPinUiState.value}")
     }
     private suspend fun navigateBack() {
         _events.send(RepeatPinEvents.NavigateBack)

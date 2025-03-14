@@ -3,7 +3,6 @@ package com.example.spendless.data.datasource
 import com.example.spendless.data.datasource.local.LocalDataSource
 import com.example.spendless.data.model.Username
 import com.example.spendless.domain.repository.LocalRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class LocalRepositoryImpl @Inject constructor(
@@ -13,7 +12,11 @@ class LocalRepositoryImpl @Inject constructor(
         localDataSource.saveUsername(username)
     }
 
-    override suspend fun getAllUsername(): Flow<List<Username>> {
-        return localDataSource.getAllUsername()
+    override suspend fun isUsernameExists(enteredUsername: String): Boolean {
+        return localDataSource.isUsernameExists(enteredUsername = enteredUsername)
+    }
+
+    override suspend fun isValidUser(enteredUsername: String, enteredPin: Int): Boolean {
+        return localDataSource.isValidUser(enteredUsername = enteredUsername, enteredPin = enteredPin)
     }
 }
