@@ -1,4 +1,4 @@
-package com.example.spendless.domain.usecase
+package com.example.spendless.domain.usecase.local
 
 import com.example.spendless.data.model.Username
 import com.example.spendless.domain.repository.LocalRepository
@@ -15,7 +15,7 @@ class LocalUseCaseImpl @Inject constructor(
         return localRepository.isUsernameExists(enteredUsername = enteredUsername)
     }
 
-    override suspend fun isValidUser(enteredUsername: String, enteredPin: Int): Boolean {
+    override suspend fun isValidUser(enteredUsername: String, enteredPin: String): Boolean {
         return localRepository.isValidUser(enteredUsername = enteredUsername, enteredPin = enteredPin)
     }
 }

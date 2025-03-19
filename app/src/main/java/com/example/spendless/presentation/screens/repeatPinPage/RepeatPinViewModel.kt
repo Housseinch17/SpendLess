@@ -3,7 +3,6 @@ package com.example.spendless.presentation.screens.repeatPinPage
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.data.model.Username
-import com.example.spendless.domain.usecase.LocalUseCase
 import com.example.spendless.presentation.util.Utils.updateEllipseList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -17,7 +16,7 @@ import javax.inject.Inject
 
 sealed interface RepeatPinEvents {
     data object NavigateBack : RepeatPinEvents
-    data class AccountRegistered(val username: String) : RepeatPinEvents
+    data class OnboardingPreferencesPage(val username: Username) : RepeatPinEvents
     data object ShowBanner : RepeatPinEvents
     data class Error(val error: String) : RepeatPinEvents
 }
@@ -30,9 +29,7 @@ sealed interface RepeatPinActions {
 }
 
 @HiltViewModel
-class RepeatPinViewModel @Inject constructor(
-    private val localUseCase: LocalUseCase
-) : ViewModel() {
+class RepeatPinViewModel @Inject constructor() : ViewModel() {
     private val _repeatPinUiState: MutableStateFlow<RepeatPinUiState> = MutableStateFlow(
         RepeatPinUiState()
     )
@@ -41,8 +38,8 @@ class RepeatPinViewModel @Inject constructor(
     private val _events: Channel<RepeatPinEvents> = Channel()
     val events = _events.receiveAsFlow()
 
-    fun onActions(repeatPinActions: RepeatPinActions) {
-        when (repeatPinActions) {
+    fun onActions(onActions: RepeatPinActions) {
+        when (onActions) {
             RepeatPinActions.NavigateBack -> viewModelScope.launch {
                 navigateBack()
             }
@@ -50,11 +47,11 @@ class RepeatPinViewModel @Inject constructor(
             RepeatPinActions.RemovePin -> removePin()
             is RepeatPinActions.UpdatePin -> {
                 viewModelScope.launch {
-                    updatePin(pin = repeatPinActions.pin)
+                    updatePin(pin = onActions.pin)
                 }
             }
 
-            is RepeatPinActions.UpdateUsername -> updateUsername(username = repeatPinActions.username)
+            is RepeatPinActions.UpdateUsername -> updateUsername(username = onActions.username)
         }
     }
 
@@ -90,27 +87,33 @@ class RepeatPinViewModel @Inject constructor(
             newState.copy(ellipseList = ellipseList)
         }
 
+
         val newRepeatPin = _repeatPinUiState.value.repeatPin
 
+//        Log.d("MyTag", "repeat Pin: ${_repeatPinUiState.value.repeatPin}")
+//        Log.d("MyTag", "create Pin: ${_repeatPinUiState.value.username.pin}")
+
+        //if repeatPin == createPin navigate to OnBoardingPreferences
         if (newRepeatPin.length == 5) {
-            if (newRepeatPin != _repeatPinUiState.value.username.pin.toString()) {
+            if (newRepeatPin != _repeatPinUiState.value.username.pin) {
                 _events.send(RepeatPinEvents.ShowBanner)
                 resetUiState()
             } else {
-                try {
-                    localUseCase.saveUsername(username = _repeatPinUiState.value.username)
-                    _events.send(RepeatPinEvents.AccountRegistered(_repeatPinUiState.value.username.username))
-                } catch (e: Exception) {
-                    _events.send(RepeatPinEvents.Error(error = e.message.toString()))
-                }
+                _events.send(
+                    RepeatPinEvents.OnboardingPreferencesPage(
+                        username = _repeatPinUiState.value.username
+                    )
+                )
             }
         }
     }
 
-    private fun resetUiState(){
-        _repeatPinUiState.value = RepeatPinUiState().copy(username = _repeatPinUiState.value.username)
+    private fun resetUiState() {
+        _repeatPinUiState.value =
+            RepeatPinUiState().copy(username = _repeatPinUiState.value.username)
 //        Log.d("MyTag","${_repeatPinUiState.value}")
     }
+
     private suspend fun navigateBack() {
         _events.send(RepeatPinEvents.NavigateBack)
     }

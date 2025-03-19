@@ -28,8 +28,8 @@ import com.example.spendless.presentation.util.Utils
 @Composable
 fun CreatePinPage(
     modifier: Modifier,
-    createPinPageUiState: CreatePinUiState,
-    createPinActions: (CreatePinActions) -> Unit,
+    state: CreatePinUiState,
+    onActions: (CreatePinActions) -> Unit,
 ) {
     Column(
         modifier = modifier,
@@ -39,7 +39,7 @@ fun CreatePinPage(
             backButton = true,
             firstText = stringResource(R.string.create_pin),
             secondText = stringResource(R.string.use_pin_to_log_in),
-            navigateBack = { createPinActions(CreatePinActions.NavigateBack) }
+            navigateBack = { onActions(CreatePinActions.NavigateBack) }
         )
 
         LazyRow(
@@ -47,7 +47,7 @@ fun CreatePinPage(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            items(createPinPageUiState.ellipseList) { item ->
+            items(state.ellipseList) { item ->
                 Icon(
                     painter = painterResource(R.drawable.ellipse_icon), contentDescription = null,
                     tint = if (item) {
@@ -71,7 +71,7 @@ fun CreatePinPage(
             items(Utils.keyboardSet) { keyboardItem ->
                 KeyBoardItem(
                     text = keyboardItem,
-                    onCreatePinActions = createPinActions,
+                    onCreatePinActions = onActions,
                 )
             }
         }

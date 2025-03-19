@@ -1,9 +1,14 @@
 package com.example.spendless.presentation.navigation
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +32,10 @@ import com.example.spendless.presentation.screens.createPinPage.CreatePinViewMod
 import com.example.spendless.presentation.screens.loginPage.LogInEvents
 import com.example.spendless.presentation.screens.loginPage.LogInPage
 import com.example.spendless.presentation.screens.loginPage.LogInViewModel
+import com.example.spendless.presentation.screens.onboardingPreferencesPage.OnboardingPreferencesActions
+import com.example.spendless.presentation.screens.onboardingPreferencesPage.OnboardingPreferencesEvents
+import com.example.spendless.presentation.screens.onboardingPreferencesPage.OnboardingPreferencesPage
+import com.example.spendless.presentation.screens.onboardingPreferencesPage.OnboardingPreferencesViewModel
 import com.example.spendless.presentation.screens.registerPage.RegisterEvents
 import com.example.spendless.presentation.screens.registerPage.RegisterPage
 import com.example.spendless.presentation.screens.registerPage.RegisterViewModel
@@ -35,10 +44,14 @@ import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinEvents
 import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinPage
 import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinViewModel
 import com.example.spendless.presentation.screens.shared.SharedActions
+import com.example.spendless.presentation.theme.Schemes_Background
+import com.example.spendless.presentation.theme.Schemes_Primary
 import com.example.spendless.presentation.util.BannerHandler
 import com.example.spendless.presentation.util.CustomNavType
 import kotlin.reflect.typeOf
 
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("RestrictedApi")
 @Composable
 fun Navigation(
     modifier: Modifier,
@@ -50,12 +63,14 @@ fun Navigation(
     val context = LocalContext.current
 
     NavHost(
-        modifier = modifier,
+        modifier = modifier.background(color = Schemes_Background),
         startDestination = startDestination,
         navController = navHostController
     ) {
-
         composable<NavigationScreens.RegisterPage> {
+            val backstackEntry = navHostController.currentBackStack.value
+            Log.d("BackstackEntry", "$backstackEntry")
+
             val registerViewModel = hiltViewModel<RegisterViewModel>()
             val registerUiState by registerViewModel.registerUiState.collectAsStateWithLifecycle()
 
@@ -70,8 +85,8 @@ fun Navigation(
                             navHostController.navigate(NavigationScreens.LogInPage)
                         }
 
-                        is RegisterEvents.NavigateToPinPage -> {
-                            navHostController.navigate(NavigationScreens.PinPage(user = events.username))
+                        is RegisterEvents.NavigateToCreatePinPage -> {
+                            navHostController.navigate(NavigationScreens.CreatePinPage(user = events.username))
                         }
 
                         RegisterEvents.ShowBanner -> {
@@ -95,17 +110,20 @@ fun Navigation(
 
             RegisterPage(
                 modifier = Modifier.fillMaxSize(),
-                registerUiState = registerUiState,
-                registerActions = registerViewModel::onActions
+                state = registerUiState,
+                onActions = registerViewModel::onActions
             )
 
         }
 
-        composable<NavigationScreens.PinPage> { entry ->
+        composable<NavigationScreens.CreatePinPage> { entry ->
+            val backstackEntry = navHostController.currentBackStack.value
+            Log.d("BackstackEntry", "$backstackEntry")
+
             val createPinViewModel = hiltViewModel<CreatePinViewModel>()
             val createPinUiState by createPinViewModel.createPinUiState.collectAsStateWithLifecycle()
 
-            val args = entry.toRoute<NavigationScreens.PinPage>()
+            val args = entry.toRoute<NavigationScreens.CreatePinPage>()
 
             LaunchedEffect(Unit) {
                 createPinViewModel.onActions(CreatePinActions.UpdateUsername(args.user))
@@ -118,7 +136,7 @@ fun Navigation(
                             navHostController.navigate(NavigationScreens.RepeatPinPage(username = events.username))
                         }
 
-                        CreatePinEvents.NavigateBack -> navHostController.navigate(NavigationScreens.RepeatPinPage)
+                        CreatePinEvents.NavigateBack -> navHostController.navigate(NavigationScreens.RepeatPinPage())
                     }
                 }
             }
@@ -126,8 +144,8 @@ fun Navigation(
 
             CreatePinPage(
                 modifier = Modifier.fillMaxSize(),
-                createPinPageUiState = createPinUiState,
-                createPinActions = createPinViewModel::onActions,
+                state = createPinUiState,
+                onActions = createPinViewModel::onActions,
             )
 
         }
@@ -137,7 +155,15 @@ fun Navigation(
                 typeOf<Username>() to CustomNavType.username
             )
         ) { entry ->
+            val backstackEntry = navHostController.currentBackStack.value
+            Log.d("BackstackEntry", "$backstackEntry")
+
             val args = entry.toRoute<NavigationScreens.RepeatPinPage>()
+
+            LaunchedEffect(Unit) {
+//                Log.d("MyTag", "pin is : ${args.username.pin}")
+            }
+
             val repeatPinPageViewModel = hiltViewModel<RepeatPinViewModel>()
             val repeatPinUiState by repeatPinPageViewModel.repeatPinUiState.collectAsStateWithLifecycle()
 
@@ -153,9 +179,17 @@ fun Navigation(
                     when (events) {
                         RepeatPinEvents.NavigateBack -> navHostController.navigateUp()
 
-                        is RepeatPinEvents.AccountRegistered -> {
-                            navHostController.navigate(NavigationScreens.OnboardingPage(username = events.username)) {
-                                popUpTo(0) {
+                        is RepeatPinEvents.OnboardingPreferencesPage -> {
+                            navHostController.navigate(
+                                NavigationScreens.OnboardingPreferencesPage(
+                                    username = events.username
+                                )
+                            ) {
+                                //here if i want to popUpTo a data class
+                                /*popUpTo<NavigationScreens.CreatePinPage> {
+                                    inclusive = false
+                                }*/
+                                popUpTo(navHostController.currentDestination!!.route.toString()) {
                                     inclusive = true
                                 }
                             }
@@ -181,12 +215,15 @@ fun Navigation(
 
             RepeatPinPage(
                 modifier = Modifier.fillMaxSize(),
-                repeatPinPageUiState = repeatPinUiState,
-                repeatPinActions = repeatPinPageViewModel::onActions,
+                state = repeatPinUiState,
+                onActions = repeatPinPageViewModel::onActions,
             )
         }
 
         composable<NavigationScreens.LogInPage> {
+            val backstackEntry = navHostController.currentBackStack.value
+            Log.d("BackstackEntry", "$backstackEntry")
+
             val logInViewModel = hiltViewModel<LogInViewModel>()
             val logInUiState by logInViewModel.logInUiState.collectAsStateWithLifecycle()
 
@@ -201,7 +238,7 @@ fun Navigation(
                         ).show()
 
                         is LogInEvents.LoggedIn -> navHostController.navigate(
-                            NavigationScreens.OnboardingPage(
+                            NavigationScreens.DashBoardingPage(
                                 username = events.username
                             )
                         ) {
@@ -215,19 +252,79 @@ fun Navigation(
 
             LogInPage(
                 modifier = Modifier.fillMaxSize(),
-                logInUiState = logInUiState,
-                logInActions = logInViewModel::onActions
+                state = logInUiState,
+                onActions = logInViewModel::onActions
             )
         }
 
-        composable<NavigationScreens.OnboardingPage> { entry ->
-            val args = entry.toRoute<NavigationScreens.OnboardingPage>()
+        composable<NavigationScreens.OnboardingPreferencesPage>(
+            typeMap = mapOf(
+                typeOf<Username>() to CustomNavType.username
+            )
+        ) { entry ->
+            val backstackEntry = navHostController.currentBackStack.value
+            Log.d("BackstackEntry", "$backstackEntry")
+
+            val args = entry.toRoute<NavigationScreens.OnboardingPreferencesPage>()
+
+            val onboardingPreferencesViewModel = hiltViewModel<OnboardingPreferencesViewModel>()
+            val onboardingPreferencesUiState by onboardingPreferencesViewModel.onboardingPreferencesUiState.collectAsStateWithLifecycle()
+
+
+            LaunchedEffect(Unit) {
+                onboardingPreferencesViewModel.onActions(
+                    OnboardingPreferencesActions.UpdateUsername(
+                        username = args.username
+                    )
+                )
+            }
+
+            LaunchedEffect(onboardingPreferencesViewModel.onboardingPreferencesEvents) {
+                onboardingPreferencesViewModel.onboardingPreferencesEvents.collect { events ->
+                    when (events) {
+                        OnboardingPreferencesEvents.NavigateBack -> navHostController.navigateUp()
+                        is OnboardingPreferencesEvents.ShowError -> Toast.makeText(
+                            context, events.error, Toast.LENGTH_LONG
+                        ).show()
+
+                        is OnboardingPreferencesEvents.NavigateToDashBoard -> {
+                            navHostController.navigate(NavigationScreens.DashBoardingPage(
+                                username = events.username
+                            )){
+                                Log.d("MyTag", events.username)
+                                popUpTo(0){
+                                    inclusive = true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            OnboardingPreferencesPage(
+                modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+                state = onboardingPreferencesUiState,
+                onActions = onboardingPreferencesViewModel::onActions,
+            )
+        }
+
+        composable<NavigationScreens.DashBoardingPage> { entry ->
+            val backstackEntry = navHostController.currentBackStack.value
+            Log.d("BackstackEntry", "$backstackEntry")
+
+            val args = entry.toRoute<NavigationScreens.DashBoardingPage>()
             LaunchedEffect(Unit) {
                 Log.d("MyTag", args.username)
             }
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Schemes_Primary),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(modifier = Modifier, text = "This is dashboard")
             }
         }
     }
+
 }

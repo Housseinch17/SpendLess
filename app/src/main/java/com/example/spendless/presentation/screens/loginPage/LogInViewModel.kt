@@ -2,7 +2,7 @@ package com.example.spendless.presentation.screens.loginPage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.spendless.domain.usecase.LocalUseCase
+import com.example.spendless.domain.usecase.local.LocalUseCase
 import com.example.spendless.presentation.util.Utils.pinRegex
 import com.example.spendless.presentation.util.Utils.usernameRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,23 +38,23 @@ class LogInViewModel @Inject constructor(
     private val _events: Channel<LogInEvents> = Channel()
     val events = _events.receiveAsFlow()
 
-    fun onActions(logInActions: LogInActions) {
-        when (logInActions) {
+    fun onActions(onActions: LogInActions) {
+        when (onActions) {
             is LogInActions.UpdatePin -> {
                 viewModelScope.launch {
-                    updatePin(pin = logInActions.pin)
+                    updatePin(pin = onActions.pin)
                 }
             }
             is LogInActions.UpdateUsername -> {
                 viewModelScope.launch {
-                    updateUsername(username = logInActions.username)
+                    updateUsername(username = onActions.username)
                 }
             }
             is LogInActions.LogIn -> {
                 viewModelScope.launch {
                     logIn(
-                        username = logInActions.username,
-                        pin = logInActions.pin
+                        username = onActions.username,
+                        pin = onActions.pin
                     )
                 }
             }
@@ -73,7 +73,7 @@ class LogInViewModel @Inject constructor(
 
     private suspend fun logIn(username: String, pin: String) {
         if(username.isNotEmpty() && pin.isNotEmpty()){
-            val isValidUser = localUseCase.isValidUser(enteredUsername = username, enteredPin = pin.toInt())
+            val isValidUser = localUseCase.isValidUser(enteredUsername = username, enteredPin = pin)
 
             if (isValidUser) {
                 _events.send(LogInEvents.LoggedIn(username = username))

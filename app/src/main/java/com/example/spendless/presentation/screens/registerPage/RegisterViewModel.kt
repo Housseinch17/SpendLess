@@ -3,7 +3,7 @@ package com.example.spendless.presentation.screens.registerPage
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.spendless.domain.usecase.LocalUseCase
+import com.example.spendless.domain.usecase.local.LocalUseCase
 import com.example.spendless.presentation.util.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed interface RegisterEvents {
-    data class NavigateToPinPage(val username: String) : RegisterEvents
+    data class NavigateToCreatePinPage(val username: String) : RegisterEvents
     data object NavigateToLogInPage : RegisterEvents
     data object ShowBanner : RegisterEvents
     data object ShowError : RegisterEvents
@@ -40,10 +40,10 @@ class RegisterViewModel @Inject constructor(
     private val _events: Channel<RegisterEvents> = Channel()
     val events = _events.receiveAsFlow()
 
-    fun onActions(registerActions: RegisterActions) {
-        when (registerActions) {
+    fun onActions(onActions: RegisterActions) {
+        when (onActions) {
             is RegisterActions.UpdateUsername -> {
-                updateUsername(registerActions.usernameValue)
+                updateUsername(onActions.usernameValue)
             }
 
             is RegisterActions.NextButton -> {
@@ -86,7 +86,7 @@ class RegisterViewModel @Inject constructor(
                     newState.copy(isNextEnabled = false)
                 }
             } else {
-                _events.send(RegisterEvents.NavigateToPinPage(username = _registerUiState.value.usernameValue))
+                _events.send(RegisterEvents.NavigateToCreatePinPage(username = _registerUiState.value.usernameValue))
             }
         }else{
             _events.send(RegisterEvents.ShowError)

@@ -150,23 +150,23 @@ fun KeyBoardItem(
 }
 
 @Composable
-fun TopTexts(modifier: Modifier, firstText: String, secondText: String) {
+fun TopTexts(modifier: Modifier, firstText: String, secondText: String, textAlign: TextAlign = TextAlign.Center, horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally) {
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = horizontalAlignment
     ) {
         Text(
             modifier = Modifier,
             text = firstText,
             style = Typography.headlineMedium,
-            textAlign = TextAlign.Center
+            textAlign = textAlign
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             modifier = Modifier,
             text = secondText,
             style = Typography.bodyMedium,
-            textAlign = TextAlign.Center
+            textAlign = textAlign
         )
     }
 }

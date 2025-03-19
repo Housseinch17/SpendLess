@@ -37,8 +37,8 @@ import com.example.spendless.presentation.util.SharedComponent
 @Composable
 fun LogInPage(
     modifier: Modifier,
-    logInUiState: LogInUiState,
-    logInActions: (LogInActions) -> Unit,
+    state: LogInUiState,
+    onActions: (LogInActions) -> Unit,
 ) {
     Column(
         modifier = modifier,
@@ -53,9 +53,9 @@ fun LogInPage(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp).clip(RoundedCornerShape(16.dp)).background(color = Schemes_OnPrimary),
-            usernameValue = logInUiState.username,
+            usernameValue = state.username,
             updateUserName = { newUsername ->
-                logInActions(LogInActions.UpdateUsername(newUsername))
+                onActions(LogInActions.UpdateUsername(newUsername))
             }
         )
 
@@ -65,9 +65,9 @@ fun LogInPage(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp).clip(RoundedCornerShape(16.dp)).background(color = Schemes_OnPrimary),
-            pinValue = logInUiState.pin,
+            pinValue = state.pin,
             updatePin = { newPin ->
-                logInActions(
+                onActions(
                     LogInActions.UpdatePin(
                         pin = newPin
                     )
@@ -82,10 +82,10 @@ fun LogInPage(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
             logInButton = {
-                logInActions(
+                onActions(
                     LogInActions.LogIn(
-                        username = logInUiState.username,
-                        pin = logInUiState.pin
+                        username = state.username,
+                        pin = state.pin
                     )
                 )
             })
@@ -95,7 +95,7 @@ fun LogInPage(
         TextButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                logInActions(LogInActions.RegisterAccount)
+                onActions(LogInActions.RegisterAccount)
             }
         ) {
             Text(
@@ -127,11 +127,11 @@ fun UsernameTextField(
         },
         shape = RoundedCornerShape(16.dp),
         textStyle = Typography.bodyMedium.copy(LocalContentColor.current),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
+        colors = TextFieldDefaults.colors(
             focusedTextColor = Schemes_OnSurface,
             unfocusedTextColor = Schemes_OnSurface,
-            focusedBorderColor = Schemes_Primary,
-            unfocusedBorderColor = Color.Transparent,
+            focusedIndicatorColor = Schemes_Primary,
+            unfocusedIndicatorColor = Color.Transparent,
         ),
     )
 }
@@ -155,11 +155,11 @@ fun PinTextField(
             )
         },
         textStyle = Typography.bodyMedium.copy(LocalContentColor.current),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
+        colors = TextFieldDefaults.colors(
             focusedTextColor = Schemes_OnSurface,
             unfocusedTextColor = Schemes_OnSurface,
-            focusedBorderColor = Schemes_Primary,
-            unfocusedBorderColor = Color.Transparent,
+            focusedIndicatorColor = Schemes_Primary,
+            unfocusedIndicatorColor = Color.Transparent,
         ),
         shape = RoundedCornerShape(16.dp),
         keyboardOptions = KeyboardOptions.Default.copy(

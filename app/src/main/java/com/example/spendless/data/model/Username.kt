@@ -11,5 +11,5 @@ import kotlinx.serialization.Serializable
 data class Username(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val username: String = "",
-    val pin: Int = 0,
+    val pin: String = "",
 )

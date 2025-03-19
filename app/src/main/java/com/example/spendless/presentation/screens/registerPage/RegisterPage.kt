@@ -46,8 +46,8 @@ import com.example.spendless.presentation.util.SharedComponent
 @Composable
 fun RegisterPage(
     modifier: Modifier,
-    registerUiState: RegisterUiState,
-    registerActions: (RegisterActions) -> Unit,
+    state: RegisterUiState,
+    onActions: (RegisterActions) -> Unit,
 ) {
     Column(
         modifier = modifier,
@@ -60,12 +60,12 @@ fun RegisterPage(
 
         UsernameTextField(
             modifier = Modifier.padding(horizontal = 26.dp),
-            textValue = registerUiState.usernameValue,
+            textValue = state.usernameValue,
             onValueUpdate = { usernameValue ->
-                registerActions(RegisterActions.UpdateUsername(usernameValue = usernameValue))
+                onActions(RegisterActions.UpdateUsername(usernameValue = usernameValue))
             },
             onDone = {
-                registerActions(RegisterActions.NextButton)
+                onActions(RegisterActions.NextButton)
             })
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -76,7 +76,7 @@ fun RegisterPage(
                 .padding(horizontal = 26.dp),
             shape = RoundedCornerShape(16.dp),
             onClick = {
-                registerActions(RegisterActions.NextButton)
+                onActions(RegisterActions.NextButton)
             },
             colors = ButtonDefaults.buttonColors().copy(
                 disabledContainerColor = Light_OnBackground,
@@ -84,7 +84,7 @@ fun RegisterPage(
                 containerColor = Schemes_Primary,
                 contentColor = Schemes_OnPrimary,
             ),
-            enabled = registerUiState.usernameValue.isNotEmpty() && registerUiState.isNextEnabled
+            enabled = state.usernameValue.isNotEmpty() && state.isNextEnabled
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -112,7 +112,7 @@ fun RegisterPage(
         TextButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                registerActions(RegisterActions.AlreadyHaveAnAccount)
+                onActions(RegisterActions.AlreadyHaveAnAccount)
             }
         ) {
             Text(

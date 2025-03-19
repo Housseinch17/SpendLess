@@ -1,5 +1,6 @@
 package com.example.spendless.presentation.screens.createPinPage
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.data.model.Username
@@ -36,9 +37,9 @@ class CreatePinViewModel @Inject constructor() : ViewModel() {
     private val _events: Channel<CreatePinEvents> = Channel()
     val events = _events.receiveAsFlow()
 
-    fun onActions(createPinActions: CreatePinActions) {
-        when (createPinActions) {
-            is CreatePinActions.UpdateUsername -> updateUsername(createPinActions.username)
+    fun onActions(onActions: CreatePinActions) {
+        when (onActions) {
+            is CreatePinActions.UpdateUsername -> updateUsername(onActions.username)
             CreatePinActions.NavigateBack -> {
                 viewModelScope.launch {
                     navigateBack()
@@ -47,7 +48,7 @@ class CreatePinViewModel @Inject constructor() : ViewModel() {
 
             is CreatePinActions.UpdatePin -> {
                 viewModelScope.launch {
-                    updatePin(createPinActions.pin)
+                    updatePin(onActions.pin)
                 }
             }
 
@@ -92,8 +93,9 @@ class CreatePinViewModel @Inject constructor() : ViewModel() {
 
 
         val newPin = _createPinUiState.value.pin
+//        Log.d("MyTag","new Pin $newPin")
         if (newPin.length == 5) {
-            val username = Username(username = _createPinUiState.value.username, pin = newPin.toInt())
+            val username = Username(username = _createPinUiState.value.username, pin = newPin)
 //            Log.d("MyTag", "createPin updatePin: username: $username")
             _events.send(CreatePinEvents.RepeatPinPage(username = username))
         }

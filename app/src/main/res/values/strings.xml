@@ -17,5 +17,14 @@
     <string name="enter_your_logIn_details">Enter you login details</string>
     <string name="log_in">Log In</string>
     <string name="new_to_spendLess">New to SpendLess?</string>
+    <string name="set_spendLess_to_your_preferences">Set SpendLess to your preferences</string>
+    <string name="you_can_change_..._time_in_settings">You can change it at any time in Settings</string>
+    <string name="spend_this_month">spend this month</string>
+    <string name="expenses_format">Expenses format</string>
+    <string name="currency">Currency</string>
+    <string name="decimal_separator">Decimal separator</string>
+    <string name="thousands_separator">Thousands separator</string>
+    <string name="start_tracking">Start Tracking!</string>
+    
     
 </resources>

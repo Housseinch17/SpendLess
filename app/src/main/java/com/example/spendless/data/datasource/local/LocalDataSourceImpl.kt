@@ -26,7 +26,7 @@ class LocalDataSourceImpl @Inject constructor(
         return@withContext usernameDAO.isUsernameExists(enteredUsername = enteredUsername)
     }
 
-    override suspend fun isValidUser(enteredUsername: String, enteredPin: Int): Boolean = withContext(coroutineDispatcher){
+    override suspend fun isValidUser(enteredUsername: String, enteredPin: String): Boolean = withContext(coroutineDispatcher){
         return@withContext usernameDAO.isValidUser(enteredUsername = enteredUsername, enteredPin = enteredPin)
     }
 }

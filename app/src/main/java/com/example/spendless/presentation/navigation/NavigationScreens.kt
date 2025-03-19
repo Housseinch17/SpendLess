@@ -9,15 +9,18 @@ sealed interface NavigationScreens {
     data object RegisterPage: NavigationScreens
 
     @Serializable
-    data class PinPage(val user: String): NavigationScreens
+    data class CreatePinPage(val user: String = ""): NavigationScreens
 
     @Serializable
-    data class RepeatPinPage(val username: Username): NavigationScreens
+    data class RepeatPinPage(val username: Username = Username()): NavigationScreens
 
     @Serializable
     data object LogInPage: NavigationScreens
 
     @Serializable
-    data class OnboardingPage(val username: String): NavigationScreens
+    data class OnboardingPreferencesPage(val username: Username = Username()): NavigationScreens
+
+    @Serializable
+    data class DashBoardingPage(val username: String = ""): NavigationScreens
 
 }
