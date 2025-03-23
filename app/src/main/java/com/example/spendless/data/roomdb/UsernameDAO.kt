@@ -18,4 +18,6 @@ interface UsernameDAO {
     @Query("SELECT EXISTS(SELECT 1 FROM username_table WHERE username = :enteredUsername AND pin = :enteredPin)")
     suspend fun isValidUser(enteredUsername: String, enteredPin: String): Boolean
 
+    @Query("SELECT pin FROM username_table WHERE username = :enteredUsername LIMIT 1")
+    suspend fun getStoredPin(enteredUsername: String): String?
 }

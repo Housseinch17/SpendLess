@@ -70,6 +70,7 @@ fun CreatePinPage(
         ) {
             items(Utils.keyboardSet) { keyboardItem ->
                 KeyBoardItem(
+                    isEnabled = state.buttonEnabled,
                     text = keyboardItem,
                     onCreatePinActions = onActions,
                 )

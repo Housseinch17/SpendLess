@@ -86,6 +86,9 @@ dependencies {
     //converters for classes inside room database
     implementation (libs.gson)
 
+    // Jetpack Security
+    //noinspection UseTomlInstead
+    implementation(libs.androidx.security.crypto)
 
 }
 kapt {

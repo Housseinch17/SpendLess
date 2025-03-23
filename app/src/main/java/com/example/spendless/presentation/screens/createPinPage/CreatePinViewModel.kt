@@ -25,6 +25,7 @@ sealed interface CreatePinActions {
     data class UpdatePin(val pin: String) : CreatePinActions
     data object RemovePin : CreatePinActions
     data object NavigateBack : CreatePinActions
+    data object ResetPin: CreatePinActions
 }
 
 @HiltViewModel
@@ -53,10 +54,17 @@ class CreatePinViewModel @Inject constructor() : ViewModel() {
             }
 
             CreatePinActions.RemovePin -> removePin()
+            CreatePinActions.ResetPin -> resetPin()
         }
     }
 
     private fun removePin() {
+        Log.d("MyTag", _createPinUiState.value.pin)
+        if (_createPinUiState.value.pin.length == 5) {
+            _createPinUiState.update { newState ->
+                newState.copy(buttonEnabled = true)
+            }
+        }
         if (_createPinUiState.value.pin.isNotEmpty()) {
             _createPinUiState.update { newState ->
                 newState.copy(pin = newState.pin.dropLast(1))
@@ -68,6 +76,7 @@ class CreatePinViewModel @Inject constructor() : ViewModel() {
                 newState.copy(ellipseList = ellipseList)
             }
         }
+        Log.d("MyTag", _createPinUiState.value.pin)
     }
 
     private fun updateUsername(username: String) {
@@ -96,8 +105,12 @@ class CreatePinViewModel @Inject constructor() : ViewModel() {
 //        Log.d("MyTag","new Pin $newPin")
         if (newPin.length == 5) {
             val username = Username(username = _createPinUiState.value.username, pin = newPin)
-//            Log.d("MyTag", "createPin updatePin: username: $username")
+            _createPinUiState.update { newState ->
+                newState.copy(buttonEnabled = false)
+            }
+//           Log.d("MyTag", "createPin updatePin: username: $username")
             _events.send(CreatePinEvents.RepeatPinPage(username = username))
+
         }
     }
 
@@ -105,4 +118,15 @@ class CreatePinViewModel @Inject constructor() : ViewModel() {
         _events.send(CreatePinEvents.NavigateBack)
     }
 
+
+    private fun resetPin() {
+        _createPinUiState.update { newState ->
+            newState.copy(pin = "")
+        }
+        //update ellipseList
+        val ellipseList = updateEllipseList(_createPinUiState.value.pin)
+        _createPinUiState.update { newState ->
+            newState.copy(ellipseList = ellipseList, buttonEnabled = true)
+        }
+    }
 }

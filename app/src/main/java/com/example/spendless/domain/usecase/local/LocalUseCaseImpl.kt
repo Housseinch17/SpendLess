@@ -18,4 +18,8 @@ class LocalUseCaseImpl @Inject constructor(
     override suspend fun isValidUser(enteredUsername: String, enteredPin: String): Boolean {
         return localRepository.isValidUser(enteredUsername = enteredUsername, enteredPin = enteredPin)
     }
+
+    override suspend fun getStoredPin(enteredUsername: String): String? {
+        return localRepository.getStoredPin(enteredUsername = enteredUsername)
+    }
 }

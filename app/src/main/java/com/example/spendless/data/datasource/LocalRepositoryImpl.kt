@@ -19,4 +19,8 @@ class LocalRepositoryImpl @Inject constructor(
     override suspend fun isValidUser(enteredUsername: String, enteredPin: String): Boolean {
         return localDataSource.isValidUser(enteredUsername = enteredUsername, enteredPin = enteredPin)
     }
+
+    override suspend fun getStoredPin(enteredUsername: String): String? {
+        return localDataSource.getStoredPin(enteredUsername = enteredUsername)
+    }
 }

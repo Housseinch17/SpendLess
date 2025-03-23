@@ -1,8 +1,11 @@
 package com.example.spendless.presentation.screens.loginPage
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.domain.usecase.local.LocalUseCase
+import com.example.spendless.domain.usecase.security.SecurityUseCase
+import com.example.spendless.presentation.util.Utils.fromBase64
 import com.example.spendless.presentation.util.Utils.pinRegex
 import com.example.spendless.presentation.util.Utils.usernameRegex
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +21,7 @@ import javax.inject.Inject
 sealed interface LogInEvents {
     data object RegisterAccount : LogInEvents
     data class ShowError(val error: String) : LogInEvents
-    data class LoggedIn(val username: String): LogInEvents
+    data class LoggedIn(val username: String) : LogInEvents
 }
 
 sealed interface LogInActions {
@@ -30,8 +33,10 @@ sealed interface LogInActions {
 
 @HiltViewModel
 class LogInViewModel @Inject constructor(
-    private val localUseCase: LocalUseCase
-) : ViewModel() {
+    private val localUseCase: LocalUseCase,
+    private val securityUseCase: SecurityUseCase,
+
+    ) : ViewModel() {
     private val _logInUiState: MutableStateFlow<LogInUiState> = MutableStateFlow(LogInUiState())
     val logInUiState: StateFlow<LogInUiState> = _logInUiState.asStateFlow()
 
@@ -41,15 +46,15 @@ class LogInViewModel @Inject constructor(
     fun onActions(onActions: LogInActions) {
         when (onActions) {
             is LogInActions.UpdatePin -> {
-                viewModelScope.launch {
-                    updatePin(pin = onActions.pin)
-                }
+                updatePin(pin = onActions.pin)
             }
+
             is LogInActions.UpdateUsername -> {
                 viewModelScope.launch {
                     updateUsername(username = onActions.username)
                 }
             }
+
             is LogInActions.LogIn -> {
                 viewModelScope.launch {
                     logIn(
@@ -72,41 +77,56 @@ class LogInViewModel @Inject constructor(
     }
 
     private suspend fun logIn(username: String, pin: String) {
-        if(username.isNotEmpty() && pin.isNotEmpty()){
-            val isValidUser = localUseCase.isValidUser(enteredUsername = username, enteredPin = pin)
+        if (username.isNotEmpty() && pin.isNotEmpty()) {
+            val usernameExists = localUseCase.isUsernameExists(enteredUsername = username)
+            if (usernameExists) {
+                val encryptedPinAsString = localUseCase.getStoredPin(enteredUsername = username)
+                Log.d("MyTag", "encryptedPinBase64: $encryptedPinAsString")
+                val encryptedPinToByteArray = encryptedPinAsString?.fromBase64()
+                Log.d("MyTag", "encryptedPinToByteArray: $encryptedPinToByteArray")
+                val decryptedPinASByteArray =
+                    encryptedPinToByteArray?.let { securityUseCase.decrypt(bytes = it) }
+                Log.d("MyTag", "decryptedPinASByteArray :$decryptedPinASByteArray")
+                val decryptedPinAsString = decryptedPinASByteArray?.toString(Charsets.UTF_8) ?: ""
+                Log.d("MyTag", "decryptedPinAsString: $decryptedPinAsString")
 
-            if (isValidUser) {
-                _events.send(LogInEvents.LoggedIn(username = username))
-            } else {
-                _events.send(LogInEvents.ShowError(error = "User is not valid!"))
+                //we fetch encrypted pin of the username, later we decrypt it to get it as string
+                //if it's the same as the one entered means the user is valid
+                val isValidUser = decryptedPinAsString == pin
+                Log.d("MyTag","isValidUser: $isValidUser")
+
+                if (isValidUser) {
+                    _events.send(LogInEvents.LoggedIn(username = username))
+                } else {
+                    _events.send(LogInEvents.ShowError(error = "Password incorrect!"))
+                }
+            }else{
+                _events.send(LogInEvents.ShowError(error = "Username doesn't exist!"))
             }
-        }else{
+        } else {
             _events.send(LogInEvents.ShowError(error = "Username and pin should not be empty!"))
         }
 
     }
 
-
     private suspend fun updateUsername(username: String) {
-        if (_logInUiState.value.username.length <= 14) {
+        if (username.length <= 14) {
             if (username.matches(usernameRegex)) {
                 _logInUiState.update { newState ->
                     newState.copy(username = username)
                 }
             }
-        }else{
+        } else {
             _events.send(LogInEvents.ShowError("Username reached max"))
         }
     }
 
-    private suspend fun updatePin(pin: String) {
-        if (_logInUiState.value.pin.length <= 5) {
+    private fun updatePin(pin: String) {
+        if (pin.length <= 5) {
             if (pin.matches(pinRegex))
                 _logInUiState.update { newState ->
                     newState.copy(pin = pin)
                 }
-        }else{
-            _events.send(LogInEvents.ShowError("Pin reached max"))
         }
     }
 

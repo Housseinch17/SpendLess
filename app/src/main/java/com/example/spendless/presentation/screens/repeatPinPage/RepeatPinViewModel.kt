@@ -56,6 +56,11 @@ class RepeatPinViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun removePin() {
+        if(_repeatPinUiState.value.repeatPin.length == 5){
+            _repeatPinUiState.update { newState ->
+                newState.copy(buttonEnabled = true)
+            }
+        }
         if (_repeatPinUiState.value.repeatPin.isNotEmpty()) {
             _repeatPinUiState.update { newState ->
                 newState.copy(repeatPin = newState.repeatPin.dropLast(1))
@@ -99,6 +104,9 @@ class RepeatPinViewModel @Inject constructor() : ViewModel() {
                 _events.send(RepeatPinEvents.ShowBanner)
                 resetUiState()
             } else {
+                _repeatPinUiState.update { newState->
+                    newState.copy(buttonEnabled = false)
+                }
                 _events.send(
                     RepeatPinEvents.OnboardingPreferencesPage(
                         username = _repeatPinUiState.value.username

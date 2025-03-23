@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,8 +15,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -110,14 +113,24 @@ fun SharedComponent(
 @Composable
 fun KeyBoardItem(
     text: String,
+    isEnabled: Boolean,
     isCreatePin: Boolean = true,
     onCreatePinActions: (CreatePinActions) -> Unit = {},
     onRepeatPinActions: (RepeatPinActions) -> Unit = {},
 ) {
     if (text.isNotEmpty() && text != "remove") {
+        //aspectRatio(1f) here means the height will take the same size as width
         TextButton(
-            modifier = Modifier.fillMaxWidth().height(60.dp)
-                .background(color = Schemes_Keyboard_Primary, shape = RoundedCornerShape(32.dp)),
+            modifier = Modifier
+                .aspectRatio(1f),
+            shape = RoundedCornerShape(32.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Schemes_Keyboard_Primary,
+                disabledContainerColor = Schemes_Keyboard_Primary.copy(alpha = 0.3f),
+                contentColor = Schemes_Keyboard_OnPrimary,
+                disabledContentColor = Schemes_Keyboard_OnPrimary.copy(alpha = 0.3f),
+            ),
+            enabled = isEnabled,
             onClick = {
                 if (isCreatePin)
                     onCreatePinActions(CreatePinActions.UpdatePin(text))
@@ -127,15 +140,23 @@ fun KeyBoardItem(
             },
         ) {
             Text(
-                text = text,
                 modifier = Modifier,
-                style = Typography.headlineLarge.copy(color = Schemes_Keyboard_OnPrimary)
+                text = text,
+                style = Typography.headlineLarge.copy(color = LocalContentColor.current)
             )
         }
     } else if (text == "remove") {
         TextButton(
-            modifier = Modifier.fillMaxWidth().height(60.dp)
-                .background(color = Schemes_Keyboard_Primary, shape = RoundedCornerShape(32.dp)),
+            modifier = Modifier
+                .aspectRatio(1f),
+            shape = RoundedCornerShape(32.dp),
+            enabled = isEnabled,
+            colors = ButtonDefaults.buttonColors(
+                disabledContainerColor = Schemes_Keyboard_Primary.copy(alpha = 0.6f),
+                containerColor = Schemes_Keyboard_Primary.copy(alpha = 0.3f),
+                disabledContentColor = Schemes_Keyboard_OnPrimary.copy(alpha = 0.3f),
+                contentColor = Schemes_Keyboard_OnPrimary
+            ),
             onClick = {
                 if (isCreatePin)
                     onCreatePinActions(CreatePinActions.RemovePin)
@@ -144,13 +165,24 @@ fun KeyBoardItem(
                 }
             },
         ) {
-            Icon(painter = painterResource(R.drawable.remove), contentDescription = null)
+            Icon(
+                modifier = Modifier,
+                painter = painterResource(R.drawable.remove),
+                contentDescription = null,
+                tint = LocalContentColor.current
+            )
         }
     }
 }
 
 @Composable
-fun TopTexts(modifier: Modifier, firstText: String, secondText: String, textAlign: TextAlign = TextAlign.Center, horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally) {
+fun TopTexts(
+    modifier: Modifier,
+    firstText: String,
+    secondText: String,
+    textAlign: TextAlign = TextAlign.Center,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally
+) {
     Column(
         modifier = modifier,
         horizontalAlignment = horizontalAlignment

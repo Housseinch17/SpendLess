@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -134,13 +135,15 @@ fun Navigation(
                     when (events) {
                         is CreatePinEvents.RepeatPinPage -> {
                             navHostController.navigate(NavigationScreens.RepeatPinPage(username = events.username))
+
+                            //clear pin after navigate
+                            createPinViewModel.onActions(CreatePinActions.ResetPin)
                         }
 
-                        CreatePinEvents.NavigateBack -> navHostController.navigate(NavigationScreens.RepeatPinPage())
+                        CreatePinEvents.NavigateBack -> navHostController.navigateUp()
                     }
                 }
             }
-
 
             CreatePinPage(
                 modifier = Modifier.fillMaxSize(),
@@ -291,7 +294,6 @@ fun Navigation(
                             navHostController.navigate(NavigationScreens.DashBoardingPage(
                                 username = events.username
                             )){
-                                Log.d("MyTag", events.username)
                                 popUpTo(0){
                                     inclusive = true
                                 }
@@ -313,16 +315,29 @@ fun Navigation(
             Log.d("BackstackEntry", "$backstackEntry")
 
             val args = entry.toRoute<NavigationScreens.DashBoardingPage>()
+
             LaunchedEffect(Unit) {
-                Log.d("MyTag", args.username)
+                //updating username in sharedViewModel uiState
+                onActions(SharedActions.UpdateUsername(username = args.username))
             }
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(color = Schemes_Primary),
                 contentAlignment = Alignment.Center
             ) {
-                Text(modifier = Modifier, text = "This is dashboard")
+                Button(
+                    onClick = {
+                        navHostController.navigate(NavigationScreens.LogInPage){
+                            popUpTo(0){
+                                inclusive = true
+                            }
+                        }
+                    }
+                ) {
+                    Text("Navigate to home screen")
+                }
             }
         }
     }

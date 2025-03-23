@@ -1,13 +1,21 @@
 package com.example.spendless.presentation.util
 
 import android.util.Log
+import com.example.spendless.data.model.PreferencesFormat
 import com.example.spendless.presentation.Currency
-import com.example.spendless.presentation.screens.onboardingPreferencesPage.PreferencesFormat
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
+import android.util.Base64
+
 
 object Utils {
+    // Convert encrypted ByteArray to Base64 String
+    fun ByteArray.toBase64(): String = Base64.encodeToString(this, Base64.DEFAULT)
+
+    // Convert Base64 String back to ByteArray
+    fun String.fromBase64(): ByteArray = Base64.decode(this, Base64.DEFAULT)
+
     val usernameRegex = "^[a-zA-Z0-9]*+$".toRegex()
 
     //2000ms = 2s

@@ -5,10 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spendless.data.model.Username
 import com.example.spendless.domain.usecase.local.LocalUseCase
-import com.example.spendless.domain.usecase.sharedPreferences.SharedPreferencesUseCase
+import com.example.spendless.domain.usecase.security.SecurityUseCase
 import com.example.spendless.presentation.Currency
 import com.example.spendless.presentation.util.Utils.formatPrice
 import com.example.spendless.presentation.util.Utils.hasSameSeparators
+import com.example.spendless.presentation.util.Utils.toBase64
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,17 +31,19 @@ sealed interface OnboardingPreferencesActions {
     data class UpdateExpenses(val expensesIsNegative: Boolean) : OnboardingPreferencesActions
     data class UpdateCurrency(val currency: Currency) : OnboardingPreferencesActions
     data class UpdateDecimalSeparator(val decimalSeparator: String) : OnboardingPreferencesActions
-    data class UpdateThousandsSeparator(val thousandsSeparator: String) : OnboardingPreferencesActions
+    data class UpdateThousandsSeparator(val thousandsSeparator: String) :
+        OnboardingPreferencesActions
+
     data object OnExpand : OnboardingPreferencesActions
     data object StartTracking : OnboardingPreferencesActions
-    data object UpdatePrice: OnboardingPreferencesActions
+    data object UpdatePrice : OnboardingPreferencesActions
 
 }
 
 @HiltViewModel
 class OnboardingPreferencesViewModel @Inject constructor(
     private val localUseCase: LocalUseCase,
-    private val sharedPreferencesUseCase: SharedPreferencesUseCase,
+    private val securityUseCase: SecurityUseCase,
 ) : ViewModel() {
     private val _onboardingPreferencesUiState: MutableStateFlow<OnboardingPreferencesUiState> =
         MutableStateFlow(
@@ -51,9 +54,6 @@ class OnboardingPreferencesViewModel @Inject constructor(
     private val _onboardingPreferencesEvents: Channel<OnboardingPreferencesEvents> = Channel()
     val onboardingPreferencesEvents = _onboardingPreferencesEvents.receiveAsFlow()
 
-    init {
-        updatePrice()
-    }
 
     fun onActions(onActions: OnboardingPreferencesActions) {
         when (onActions) {
@@ -66,8 +66,13 @@ class OnboardingPreferencesViewModel @Inject constructor(
             is OnboardingPreferencesActions.UpdateUsername -> updateUsername(username = onActions.username)
             is OnboardingPreferencesActions.UpdateExpenses -> updateExpenses(expensesIsNegative = onActions.expensesIsNegative)
             is OnboardingPreferencesActions.UpdateCurrency -> updateCurrency(currency = onActions.currency)
-            is OnboardingPreferencesActions.UpdateDecimalSeparator -> updateDecimalSeparator(decimalSeparator = onActions.decimalSeparator)
-            is OnboardingPreferencesActions.UpdateThousandsSeparator -> updateThousandsSeparator(thousandsSeparator = onActions.thousandsSeparator)
+            is OnboardingPreferencesActions.UpdateDecimalSeparator -> updateDecimalSeparator(
+                decimalSeparator = onActions.decimalSeparator
+            )
+
+            is OnboardingPreferencesActions.UpdateThousandsSeparator -> updateThousandsSeparator(
+                thousandsSeparator = onActions.thousandsSeparator
+            )
 
             OnboardingPreferencesActions.OnExpand -> onExpand()
             OnboardingPreferencesActions.StartTracking -> {
@@ -92,19 +97,28 @@ class OnboardingPreferencesViewModel @Inject constructor(
 
     private suspend fun startTracking() {
         val preferencesFormat = _onboardingPreferencesUiState.value.preferencesFormat
+//        Log.d("MyTag","preferencesFormat: $preferencesFormat")
         val user = _onboardingPreferencesUiState.value.user
-        Log.d("MyTag", user.username)
+//        Log.d("MyTag", user.username)
         try {
-            //save preferences into sharedPreferences
-            sharedPreferencesUseCase.savePreferences(preferencesFormat = preferencesFormat)
-            //save user(username, pin) into room database
-            localUseCase.saveUsername(user)
+            Log.d("MyTag","userPin: ${user.pin}")
+            //convert pin to ByteArray()
+            val pinToByteArray = user.pin.toByteArray(Charsets.UTF_8)
+            //encrypt converted pin
+            val encryptedPin = securityUseCase.encrypt(bytes = pinToByteArray)
+            //convert encrypted pin to string from ByteArray
+            val encryptedBytePinToString = encryptedPin.toBase64()
+            Log.d("MyTag","encryptedPinToBase: $encryptedBytePinToString")
+            //save user(username, pin, preferences) into room database
+            val userToSave = user.copy(preferencesFormat = preferencesFormat, pin = encryptedBytePinToString)
+            localUseCase.saveUsername(username = userToSave)
             //send events to navigate to dashBoard
             _onboardingPreferencesEvents.send(
                 OnboardingPreferencesEvents.NavigateToDashBoard(
                     username = user.username
                 )
             )
+            Log.d("MyTag","User saved: $userToSave")
         } catch (e: Exception) {
             _onboardingPreferencesEvents.send(OnboardingPreferencesEvents.ShowError(error = e.message.toString()))
         }

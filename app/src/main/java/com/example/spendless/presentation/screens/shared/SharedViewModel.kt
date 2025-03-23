@@ -12,6 +12,7 @@ sealed interface SharedActions {
     data class UpdateBannerText(val bannerText: String) : SharedActions
     data class ShowBanner(val bannerText: String) : SharedActions
     data object HideBanner : SharedActions
+    data class UpdateUsername(val username: String) : SharedActions
 }
 
 @HiltViewModel
@@ -29,6 +30,13 @@ class SharedViewModel @Inject constructor() : ViewModel() {
             }
 
             SharedActions.HideBanner -> hideBanner()
+            is SharedActions.UpdateUsername -> updateUsername(username = sharedActions.username)
+        }
+    }
+
+    private fun updateUsername(username: String) {
+        _sharedUiState.update { newState ->
+            newState.copy(username = username)
         }
     }
 

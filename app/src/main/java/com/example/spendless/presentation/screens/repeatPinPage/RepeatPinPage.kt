@@ -70,6 +70,7 @@ fun RepeatPinPage(
         ) {
             items(Utils.keyboardSet) { keyboardItem ->
                 KeyBoardItem(
+                    isEnabled = state.buttonEnabled,
                     isCreatePin = false,
                     text = keyboardItem,
                     onRepeatPinActions = onActions,
