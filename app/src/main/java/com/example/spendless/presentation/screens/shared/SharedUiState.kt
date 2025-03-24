@@ -4,5 +4,4 @@ data class SharedUiState(
     val showBanner: Boolean = false,
     val bannerText: String = "",
     val username: String = "",
-    val currentTime: String = "",
 )

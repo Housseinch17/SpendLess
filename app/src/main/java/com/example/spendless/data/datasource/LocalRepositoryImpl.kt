@@ -5,7 +5,6 @@ import com.example.spendless.data.model.LockedOutDuration
 import com.example.spendless.data.model.SessionExpiryDuration
 import com.example.spendless.data.model.Username
 import com.example.spendless.domain.repository.LocalRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class LocalRepositoryImpl @Inject constructor(
@@ -27,11 +26,11 @@ class LocalRepositoryImpl @Inject constructor(
         return localDataSource.getStoredPin(enteredUsername = enteredUsername)
     }
 
-    override fun getSessionExpiryDuration(enteredUsername: String): Flow<SessionExpiryDuration> {
+    override suspend fun getSessionExpiryDuration(enteredUsername: String): SessionExpiryDuration {
         return localDataSource.getSessionExpiryDuration(enteredUsername = enteredUsername)
     }
 
-    override fun getLockedOutDuration(enteredUsername: String): Flow<LockedOutDuration> {
+    override suspend fun getLockedOutDuration(enteredUsername: String): LockedOutDuration {
         return localDataSource.getLockedOutDuration(enteredUsername = enteredUsername)
     }
 }

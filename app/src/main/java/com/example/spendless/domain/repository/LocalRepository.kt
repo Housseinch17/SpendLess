@@ -3,13 +3,12 @@ package com.example.spendless.domain.repository
 import com.example.spendless.data.model.LockedOutDuration
 import com.example.spendless.data.model.SessionExpiryDuration
 import com.example.spendless.data.model.Username
-import kotlinx.coroutines.flow.Flow
 
 interface LocalRepository {
     suspend fun saveUsername(username: Username)
     suspend fun isUsernameExists(enteredUsername: String): Boolean
     suspend fun isValidUser(enteredUsername: String, enteredPin: String): Boolean
     suspend fun getStoredPin(enteredUsername: String): String?
-    fun getSessionExpiryDuration(enteredUsername: String): Flow<SessionExpiryDuration>
-    fun getLockedOutDuration(enteredUsername: String): Flow<LockedOutDuration>
+    suspend fun getSessionExpiryDuration(enteredUsername: String): SessionExpiryDuration
+    suspend fun getLockedOutDuration(enteredUsername: String): LockedOutDuration
 }

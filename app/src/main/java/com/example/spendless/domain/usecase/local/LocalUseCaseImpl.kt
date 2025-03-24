@@ -4,12 +4,11 @@ import com.example.spendless.data.model.LockedOutDuration
 import com.example.spendless.data.model.SessionExpiryDuration
 import com.example.spendless.data.model.Username
 import com.example.spendless.domain.repository.LocalRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class LocalUseCaseImpl @Inject constructor(
     private val localRepository: LocalRepository,
-): LocalUseCase {
+) : LocalUseCase {
     override suspend fun saveUsername(username: Username) {
         return localRepository.saveUsername(username)
     }
@@ -19,18 +18,21 @@ class LocalUseCaseImpl @Inject constructor(
     }
 
     override suspend fun isValidUser(enteredUsername: String, enteredPin: String): Boolean {
-        return localRepository.isValidUser(enteredUsername = enteredUsername, enteredPin = enteredPin)
+        return localRepository.isValidUser(
+            enteredUsername = enteredUsername,
+            enteredPin = enteredPin
+        )
     }
 
     override suspend fun getStoredPin(enteredUsername: String): String? {
         return localRepository.getStoredPin(enteredUsername = enteredUsername)
     }
 
-    override fun getSessionExpiryDuration(enteredUsername: String): Flow<SessionExpiryDuration> {
+    override suspend fun getSessionExpiryDuration(enteredUsername: String): SessionExpiryDuration {
         return localRepository.getSessionExpiryDuration(enteredUsername = enteredUsername)
     }
 
-    override fun getLockedOutDuration(enteredUsername: String): Flow<LockedOutDuration> {
+    override suspend fun getLockedOutDuration(enteredUsername: String): LockedOutDuration {
         return localRepository.getLockedOutDuration(enteredUsername = enteredUsername)
     }
 }

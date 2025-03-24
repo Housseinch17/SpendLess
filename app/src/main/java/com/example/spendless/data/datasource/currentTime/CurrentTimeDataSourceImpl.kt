@@ -1,26 +1,32 @@
 package com.example.spendless.data.datasource.currentTime
 
 import android.annotation.SuppressLint
+import android.util.Log
 import com.example.spendless.data.model.SessionExpiryDuration
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class CurrentTimeDataSourceImpl @Inject constructor() : CurrentTimeDataSource {
+
     @SuppressLint("NewApi")
-    override fun getCurrentTime(): String {
+    override fun getCurrentTime(): Long {
         val currentTime = LocalTime.now()
-        val formatter = DateTimeFormatter.ofPattern("HH:mm")
-        return currentTime.format(formatter)
+        // Get current time in milliseconds
+        Log.d("MyTag","getCurrentTime: ${currentTime.toNanoOfDay()}")
+        return currentTime.toNanoOfDay() / 1_000_000  // Converts to milliseconds
     }
 
     @SuppressLint("NewApi")
-    override fun updateSessionExpiryDuration(sessionExpiryDuration: SessionExpiryDuration): String {
+    override fun updateSessionExpiryDuration(sessionExpiryDuration: SessionExpiryDuration): Long {
         val currentTime = LocalTime.now()
-        //if minute add minutes if hour add hours
-        // 02:56 time, 5min 03:01, 02:56 time, 1hour, 03:56
-        val newTime = if (sessionExpiryDuration.isMinute) currentTime.plusMinutes(sessionExpiryDuration.sessionExpiryDuration) else currentTime.plusHours(sessionExpiryDuration.sessionExpiryDuration)
-        val formatter = DateTimeFormatter.ofPattern("HH:mm")
-        return newTime.format(formatter)
+        val newTime = if (sessionExpiryDuration.isMinute) {
+            currentTime.plusMinutes(sessionExpiryDuration.sessionExpiryDuration)
+        } else {
+            currentTime.plusHours(sessionExpiryDuration.sessionExpiryDuration)
+        }
+        // Return the new time in milliseconds
+        Log.d("MyTag","updateSession: ${newTime.toNanoOfDay()}")
+        return newTime.toNanoOfDay() / 1_000_000  // Converts to milliseconds
     }
+
 }

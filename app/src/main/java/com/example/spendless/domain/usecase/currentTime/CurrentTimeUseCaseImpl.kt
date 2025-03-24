@@ -7,11 +7,11 @@ import javax.inject.Inject
 class CurrentTimeUseCaseImpl @Inject constructor(
     private val currentTimeRepository: CurrentTimeRepository
 ): CurrentTimeUseCase {
-    override fun getCurrentTime(): String {
+    override fun getCurrentTime(): Long {
         return currentTimeRepository.getCurrentTime()
     }
 
-    override fun updateSessionExpiryDuration(sessionExpiryDuration: SessionExpiryDuration): String {
+    override fun updateSessionExpiryDuration(sessionExpiryDuration: SessionExpiryDuration): Long {
         return currentTimeRepository.updateSessionExpiryDuration(sessionExpiryDuration = sessionExpiryDuration)
     }
 }

@@ -8,11 +8,11 @@ import javax.inject.Inject
 class CurrentTimeRepositoryImpl @Inject constructor(
     private val currentTimeDataSource: CurrentTimeDataSource,
 ): CurrentTimeRepository {
-    override fun getCurrentTime(): String {
+    override fun getCurrentTime(): Long {
         return currentTimeDataSource.getCurrentTime()
     }
 
-    override fun updateSessionExpiryDuration(sessionExpiryDuration: SessionExpiryDuration): String {
+    override fun updateSessionExpiryDuration(sessionExpiryDuration: SessionExpiryDuration): Long {
         return currentTimeDataSource.updateSessionExpiryDuration(sessionExpiryDuration = sessionExpiryDuration)
     }
 }

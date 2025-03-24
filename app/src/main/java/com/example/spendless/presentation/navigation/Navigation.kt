@@ -66,10 +66,6 @@ fun Navigation(
 ) {
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        sharedViewModel.onActions(SharedActions.UpdateCurrentTime)
-    }
-
     NavHost(
         modifier = modifier.background(color = Schemes_Background),
         startDestination = startDestination,
@@ -290,10 +286,6 @@ fun Navigation(
                         username = args.username
                     )
                 )
-
-                //updating username in shared uiState to use it in multiple calls
-                sharedViewModel.onActions(SharedActions.UpdateUsername(username = args.username.username))
-
             }
 
             LaunchedEffect(onboardingPreferencesViewModel.onboardingPreferencesEvents) {
