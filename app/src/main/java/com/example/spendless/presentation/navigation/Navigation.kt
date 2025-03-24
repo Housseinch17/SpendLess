@@ -23,6 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.toRoute
 import com.example.spendless.R
 import com.example.spendless.data.model.Username
@@ -45,6 +46,8 @@ import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinEvents
 import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinPage
 import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinViewModel
 import com.example.spendless.presentation.screens.shared.SharedActions
+import com.example.spendless.presentation.screens.shared.SharedUiState
+import com.example.spendless.presentation.screens.shared.SharedViewModel
 import com.example.spendless.presentation.theme.Schemes_Background
 import com.example.spendless.presentation.theme.Schemes_Primary
 import com.example.spendless.presentation.util.BannerHandler
@@ -58,16 +61,22 @@ fun Navigation(
     modifier: Modifier,
     navHostController: NavHostController,
     startDestination: NavigationScreens,
-    onActions: (SharedActions) -> Unit,
+    sharedViewModel: SharedViewModel,
+    sharedUiState: SharedUiState,
 ) {
-
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        sharedViewModel.onActions(SharedActions.UpdateCurrentTime)
+    }
 
     NavHost(
         modifier = modifier.background(color = Schemes_Background),
         startDestination = startDestination,
         navController = navHostController
     ) {
+
+
         composable<NavigationScreens.RegisterPage> {
             val backstackEntry = navHostController.currentBackStack.value
             Log.d("BackstackEntry", "$backstackEntry")
@@ -92,7 +101,7 @@ fun Navigation(
 
                         RegisterEvents.ShowBanner -> {
                             val bannerText = context.getString(R.string.username_already_taken)
-                            onActions(SharedActions.ShowBanner(bannerText = bannerText))
+                            sharedViewModel.onActions(SharedActions.ShowBanner(bannerText = bannerText))
                         }
 
                         RegisterEvents.ShowError -> Toast.makeText(
@@ -105,7 +114,7 @@ fun Navigation(
             }
 
             BannerHandler(
-                onActions = onActions,
+                onActions = sharedViewModel::onActions,
                 lifecycleOwner = lifecycleOwner
             )
 
@@ -200,7 +209,7 @@ fun Navigation(
 
                         RepeatPinEvents.ShowBanner -> {
                             val bannerText = context.getString(R.string.pins_doesnt_match)
-                            onActions(SharedActions.ShowBanner(bannerText = bannerText))
+                            sharedViewModel.onActions(SharedActions.ShowBanner(bannerText = bannerText))
                         }
 
                         is RepeatPinEvents.Error -> {
@@ -211,7 +220,7 @@ fun Navigation(
             }
 
             BannerHandler(
-                onActions = onActions,
+                onActions = sharedViewModel::onActions,
                 lifecycleOwner = lifecycleOwner
             )
 
@@ -275,11 +284,16 @@ fun Navigation(
 
 
             LaunchedEffect(Unit) {
+                //updating username in OnBoardingPreferencesViewModel to save it locally
                 onboardingPreferencesViewModel.onActions(
                     OnboardingPreferencesActions.UpdateUsername(
                         username = args.username
                     )
                 )
+
+                //updating username in shared uiState to use it in multiple calls
+                sharedViewModel.onActions(SharedActions.UpdateUsername(username = args.username.username))
+
             }
 
             LaunchedEffect(onboardingPreferencesViewModel.onboardingPreferencesEvents) {
@@ -318,7 +332,7 @@ fun Navigation(
 
             LaunchedEffect(Unit) {
                 //updating username in sharedViewModel uiState
-                onActions(SharedActions.UpdateUsername(username = args.username))
+                sharedViewModel.onActions(SharedActions.UpdateUsername(username = args.username))
             }
 
             Box(
@@ -340,6 +354,13 @@ fun Navigation(
                 }
             }
         }
+
+        dialog<NavigationScreens.PromptPinPage>{
+
+        }
+
     }
+
+
 
 }

@@ -1,7 +1,10 @@
 package com.example.spendless.presentation.di
 
+import com.example.spendless.domain.repository.CurrentTimeRepository
 import com.example.spendless.domain.repository.LocalRepository
 import com.example.spendless.domain.repository.SecurityRepository
+import com.example.spendless.domain.usecase.currentTime.CurrentTimeUseCase
+import com.example.spendless.domain.usecase.currentTime.CurrentTimeUseCaseImpl
 import com.example.spendless.domain.usecase.local.LocalUseCase
 import com.example.spendless.domain.usecase.local.LocalUseCaseImpl
 import com.example.spendless.domain.usecase.security.SecurityUseCase
@@ -26,6 +29,12 @@ object UseCaseModule {
     @Singleton
     fun provideSecurityUseCase(securityRepository: SecurityRepository): SecurityUseCase {
         return SecurityUseCaseImpl(securityRepository = securityRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCurrentTimeUseCase(currentTimeRepository: CurrentTimeRepository): CurrentTimeUseCase {
+        return CurrentTimeUseCaseImpl(currentTimeRepository = currentTimeRepository)
     }
 
 }

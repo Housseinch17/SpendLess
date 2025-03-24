@@ -63,7 +63,8 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding),
                         navHostController = navController,
                         startDestination = NavigationScreens.RegisterPage,
-                        onActions = sharedViewModel::onActions,
+                        sharedViewModel = sharedViewModel,
+                        sharedUiState = sharedUiState
                     )
                 }
             }

@@ -40,7 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.spendless.R
-import com.example.spendless.presentation.Currency
+import com.example.spendless.data.model.Currency
 import com.example.spendless.presentation.theme.Light_PrimaryContainer
 import com.example.spendless.presentation.theme.Schemes_Error
 import com.example.spendless.presentation.theme.Schemes_OnPrimary

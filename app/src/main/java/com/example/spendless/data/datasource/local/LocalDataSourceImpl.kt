@@ -1,9 +1,12 @@
 package com.example.spendless.data.datasource.local
 
 import android.util.Log
+import com.example.spendless.data.model.LockedOutDuration
+import com.example.spendless.data.model.SessionExpiryDuration
 import com.example.spendless.data.model.Username
 import com.example.spendless.data.roomdb.UsernameDAO
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
@@ -33,4 +36,13 @@ class LocalDataSourceImpl @Inject constructor(
     override suspend fun getStoredPin(enteredUsername: String): String? = withContext(coroutineDispatcher) {
         return@withContext usernameDAO.getStoredPin(enteredUsername = enteredUsername)
     }
+
+    override fun getSessionExpiryDuration(enteredUsername: String): Flow<SessionExpiryDuration> {
+        return usernameDAO.getSessionExpiryDuration(enteredUsername = enteredUsername)
+    }
+
+    override fun getLockedOutDuration(enteredUsername: String): Flow<LockedOutDuration> {
+        return usernameDAO.getLockedOutDuration(enteredUsername = enteredUsername)
+    }
+
 }

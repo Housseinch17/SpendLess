@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.spendless.data.model.Username
 import com.example.spendless.domain.usecase.local.LocalUseCase
 import com.example.spendless.domain.usecase.security.SecurityUseCase
-import com.example.spendless.presentation.Currency
+import com.example.spendless.data.model.Currency
 import com.example.spendless.presentation.util.Utils.formatPrice
 import com.example.spendless.presentation.util.Utils.hasSameSeparators
 import com.example.spendless.presentation.util.Utils.toBase64
@@ -95,6 +95,7 @@ class OnboardingPreferencesViewModel @Inject constructor(
         }
     }
 
+
     private suspend fun startTracking() {
         val preferencesFormat = _onboardingPreferencesUiState.value.preferencesFormat
 //        Log.d("MyTag","preferencesFormat: $preferencesFormat")
@@ -109,8 +110,9 @@ class OnboardingPreferencesViewModel @Inject constructor(
             //convert encrypted pin to string from ByteArray
             val encryptedBytePinToString = encryptedPin.toBase64()
             Log.d("MyTag","encryptedPinToBase: $encryptedBytePinToString")
-            //save user(username, pin, preferences) into room database
+            //save user into room database it takes SessionExpiryDuration and LockedOutDuration by default
             val userToSave = user.copy(preferencesFormat = preferencesFormat, pin = encryptedBytePinToString)
+            Log.d("MyTag","userToSave: $userToSave")
             localUseCase.saveUsername(username = userToSave)
             //send events to navigate to dashBoard
             _onboardingPreferencesEvents.send(

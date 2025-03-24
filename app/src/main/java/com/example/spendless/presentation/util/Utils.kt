@@ -2,7 +2,7 @@ package com.example.spendless.presentation.util
 
 import android.util.Log
 import com.example.spendless.data.model.PreferencesFormat
-import com.example.spendless.presentation.Currency
+import com.example.spendless.data.model.Currency
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale

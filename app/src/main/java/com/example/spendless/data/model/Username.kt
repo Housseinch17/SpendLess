@@ -16,4 +16,6 @@ data class Username(
     val pin: String = "",
     @TypeConverters(Converters::class)
     val preferencesFormat: PreferencesFormat = PreferencesFormat(),
+    val sessionExpiryDuration: SessionExpiryDuration = SessionExpiryDuration(),
+    val lockedOutDuration: LockedOutDuration = LockedOutDuration(),
 )

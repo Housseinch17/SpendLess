@@ -4,7 +4,10 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.spendless.data.model.LockedOutDuration
+import com.example.spendless.data.model.SessionExpiryDuration
 import com.example.spendless.data.model.Username
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UsernameDAO {
@@ -20,4 +23,12 @@ interface UsernameDAO {
 
     @Query("SELECT pin FROM username_table WHERE username = :enteredUsername LIMIT 1")
     suspend fun getStoredPin(enteredUsername: String): String?
+
+    @Query("SELECT sessionExpiryDuration FROM username_table WHERE username = :enteredUsername LIMIT 1")
+    fun getSessionExpiryDuration(enteredUsername: String): Flow<SessionExpiryDuration>
+
+    @Query("SELECT lockedOutDuration FROM username_table WHERE username = :enteredUsername LIMIT 1")
+    fun getLockedOutDuration(enteredUsername: String): Flow<LockedOutDuration>
+
+
 }

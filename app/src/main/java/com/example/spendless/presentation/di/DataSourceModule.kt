@@ -1,12 +1,16 @@
 package com.example.spendless.presentation.di
 
+import com.example.spendless.data.datasource.CurrentTimeRepositoryImpl
 import com.example.spendless.data.datasource.LocalRepositoryImpl
 import com.example.spendless.data.datasource.SecurityRepositoryImpl
+import com.example.spendless.data.datasource.currentTime.CurrentTimeDataSource
+import com.example.spendless.data.datasource.currentTime.CurrentTimeDataSourceImpl
 import com.example.spendless.data.datasource.local.LocalDataSource
 import com.example.spendless.data.datasource.local.LocalDataSourceImpl
 import com.example.spendless.data.datasource.security.SecurityDataSource
 import com.example.spendless.data.datasource.security.SecurityDataSourceImpl
 import com.example.spendless.data.roomdb.UsernameDAO
+import com.example.spendless.domain.repository.CurrentTimeRepository
 import com.example.spendless.domain.repository.LocalRepository
 import com.example.spendless.domain.repository.SecurityRepository
 import dagger.Module
@@ -51,5 +55,17 @@ object DataSourceModule {
     @Singleton
     fun provideSecurityRepository(securityDataSource: SecurityDataSource): SecurityRepository {
         return SecurityRepositoryImpl(securityDataSource = securityDataSource)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCurrentTimeDataSource(): CurrentTimeDataSource{
+        return CurrentTimeDataSourceImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCurrentTimeRepository(currentTimeDataSource: CurrentTimeDataSource): CurrentTimeRepository{
+        return CurrentTimeRepositoryImpl(currentTimeDataSource = currentTimeDataSource)
     }
 }

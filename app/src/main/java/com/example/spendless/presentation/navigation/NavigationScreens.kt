@@ -23,4 +23,7 @@ sealed interface NavigationScreens {
     @Serializable
     data class DashBoardingPage(val username: String = ""): NavigationScreens
 
+    @Serializable
+    data object PromptPinPage: NavigationScreens
+
 }

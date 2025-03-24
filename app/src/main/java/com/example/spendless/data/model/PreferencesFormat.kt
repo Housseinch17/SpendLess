@@ -1,6 +1,5 @@
 package com.example.spendless.data.model
 
-import com.example.spendless.presentation.Currency
 import kotlinx.serialization.Serializable
 
 @Serializable
