@@ -7,6 +7,7 @@ import com.example.spendless.data.model.Username
 import com.example.spendless.domain.usecase.local.LocalUseCase
 import com.example.spendless.domain.usecase.security.SecurityUseCase
 import com.example.spendless.data.model.Currency
+import com.example.spendless.domain.usecase.currentTime.TimeUseCase
 import com.example.spendless.presentation.util.Utils.formatPrice
 import com.example.spendless.presentation.util.Utils.hasSameSeparators
 import com.example.spendless.presentation.util.Utils.toBase64
@@ -44,6 +45,7 @@ sealed interface OnboardingPreferencesActions {
 class OnboardingPreferencesViewModel @Inject constructor(
     private val localUseCase: LocalUseCase,
     private val securityUseCase: SecurityUseCase,
+    private val timeUseCase: TimeUseCase,
 ) : ViewModel() {
     private val _onboardingPreferencesUiState: MutableStateFlow<OnboardingPreferencesUiState> =
         MutableStateFlow(
@@ -102,17 +104,26 @@ class OnboardingPreferencesViewModel @Inject constructor(
         val user = _onboardingPreferencesUiState.value.user
 //        Log.d("MyTag", user.username)
         try {
-            Log.d("MyTag","userPin: ${user.pin}")
+            Log.d("MyTag", "userPin: ${user.pin}")
             //convert pin to ByteArray()
             val pinToByteArray = user.pin.toByteArray(Charsets.UTF_8)
             //encrypt converted pin
             val encryptedPin = securityUseCase.encrypt(bytes = pinToByteArray)
             //convert encrypted pin to string from ByteArray
             val encryptedBytePinToString = encryptedPin.toBase64()
-            Log.d("MyTag","encryptedPinToBase: $encryptedBytePinToString")
+            Log.d("MyTag", "encryptedPinToBase: $encryptedBytePinToString")
+
+            //get currentTime
+            val currentTime = timeUseCase.getCurrentTime()
+
             //save user into room database it takes SessionExpiryDuration and LockedOutDuration by default
-            val userToSave = user.copy(preferencesFormat = preferencesFormat, pin = encryptedBytePinToString)
-            Log.d("MyTag","userToSave: $userToSave")
+            val userToSave = user.copy(
+                currentTime = currentTime,
+                preferencesFormat = preferencesFormat,
+                pin = encryptedBytePinToString
+            )
+
+//            Log.d("MyTag", "userToSave: $userToSave")
             localUseCase.saveUsername(username = userToSave)
             //send events to navigate to dashBoard
             _onboardingPreferencesEvents.send(
@@ -120,7 +131,7 @@ class OnboardingPreferencesViewModel @Inject constructor(
                     username = user.username
                 )
             )
-            Log.d("MyTag","User saved: $userToSave")
+            Log.d("MyTag", "User saved: $userToSave")
         } catch (e: Exception) {
             _onboardingPreferencesEvents.send(OnboardingPreferencesEvents.ShowError(error = e.message.toString()))
         }

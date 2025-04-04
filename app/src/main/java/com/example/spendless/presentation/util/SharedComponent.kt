@@ -35,6 +35,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.spendless.R
 import com.example.spendless.presentation.screens.createPinPage.CreatePinActions
+import com.example.spendless.presentation.screens.promptPinPage.PromptPinActions
 import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinActions
 import com.example.spendless.presentation.screens.shared.SharedActions
 import com.example.spendless.presentation.theme.Schemes_Error
@@ -110,13 +111,20 @@ fun SharedComponent(
     Spacer(modifier = Modifier.height(36.dp))
 }
 
+sealed interface PinOptions {
+    data object IsCreatePin : PinOptions
+    data object IsRepeatPin : PinOptions
+    data object IsPromptPin : PinOptions
+}
+
 @Composable
 fun KeyBoardItem(
     text: String,
     isEnabled: Boolean,
-    isCreatePin: Boolean = true,
+    pinOptions: PinOptions,
     onCreatePinActions: (CreatePinActions) -> Unit = {},
     onRepeatPinActions: (RepeatPinActions) -> Unit = {},
+    onPromptPinActions: (PromptPinActions) -> Unit = {},
 ) {
     if (text.isNotEmpty() && text != "remove") {
         //aspectRatio(1f) here means the height will take the same size as width
@@ -132,10 +140,10 @@ fun KeyBoardItem(
             ),
             enabled = isEnabled,
             onClick = {
-                if (isCreatePin)
-                    onCreatePinActions(CreatePinActions.UpdatePin(text))
-                else {
-                    onRepeatPinActions(RepeatPinActions.UpdatePin(text))
+                when (pinOptions) {
+                    PinOptions.IsCreatePin -> onCreatePinActions(CreatePinActions.UpdatePin(text))
+                    PinOptions.IsRepeatPin -> onRepeatPinActions(RepeatPinActions.UpdatePin(text))
+                    PinOptions.IsPromptPin -> onPromptPinActions(PromptPinActions.UpdatePin(text))
                 }
             },
         ) {
@@ -158,10 +166,10 @@ fun KeyBoardItem(
                 contentColor = Schemes_Keyboard_OnPrimary
             ),
             onClick = {
-                if (isCreatePin)
-                    onCreatePinActions(CreatePinActions.RemovePin)
-                else {
-                    onRepeatPinActions(RepeatPinActions.RemovePin)
+                when (pinOptions) {
+                    PinOptions.IsCreatePin -> onCreatePinActions(CreatePinActions.UpdatePin(text))
+                    PinOptions.IsPromptPin -> onRepeatPinActions(RepeatPinActions.UpdatePin(text))
+                    PinOptions.IsRepeatPin -> onPromptPinActions(PromptPinActions.UpdatePin(text))
                 }
             },
         ) {

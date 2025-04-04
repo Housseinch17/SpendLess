@@ -1,16 +1,16 @@
 package com.example.spendless.presentation.di
 
-import com.example.spendless.data.datasource.CurrentTimeRepositoryImpl
+import com.example.spendless.data.datasource.TimeRepositoryImpl
 import com.example.spendless.data.datasource.LocalRepositoryImpl
 import com.example.spendless.data.datasource.SecurityRepositoryImpl
-import com.example.spendless.data.datasource.currentTime.CurrentTimeDataSource
-import com.example.spendless.data.datasource.currentTime.CurrentTimeDataSourceImpl
+import com.example.spendless.data.datasource.currentTime.TimeDataSource
+import com.example.spendless.data.datasource.currentTime.TimeDataSourceImpl
 import com.example.spendless.data.datasource.local.LocalDataSource
 import com.example.spendless.data.datasource.local.LocalDataSourceImpl
 import com.example.spendless.data.datasource.security.SecurityDataSource
 import com.example.spendless.data.datasource.security.SecurityDataSourceImpl
 import com.example.spendless.data.roomdb.UsernameDAO
-import com.example.spendless.domain.repository.CurrentTimeRepository
+import com.example.spendless.domain.repository.TimeRepository
 import com.example.spendless.domain.repository.LocalRepository
 import com.example.spendless.domain.repository.SecurityRepository
 import dagger.Module
@@ -59,13 +59,13 @@ object DataSourceModule {
 
     @Provides
     @Singleton
-    fun provideCurrentTimeDataSource(): CurrentTimeDataSource{
-        return CurrentTimeDataSourceImpl()
+    fun provideCurrentTimeDataSource(): TimeDataSource{
+        return TimeDataSourceImpl()
     }
 
     @Provides
     @Singleton
-    fun provideCurrentTimeRepository(currentTimeDataSource: CurrentTimeDataSource): CurrentTimeRepository{
-        return CurrentTimeRepositoryImpl(currentTimeDataSource = currentTimeDataSource)
+    fun provideCurrentTimeRepository(timeDataSource: TimeDataSource): TimeRepository{
+        return TimeRepositoryImpl(timeDataSource = timeDataSource)
     }
 }

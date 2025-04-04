@@ -6,7 +6,7 @@ import com.example.spendless.data.model.SessionExpiryDuration
 import java.time.LocalTime
 import javax.inject.Inject
 
-class CurrentTimeDataSourceImpl @Inject constructor() : CurrentTimeDataSource {
+class TimeDataSourceImpl @Inject constructor() : TimeDataSource {
 
     @SuppressLint("NewApi")
     override fun getCurrentTime(): Long {

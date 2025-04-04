@@ -22,6 +22,7 @@ import com.example.spendless.R
 import com.example.spendless.presentation.theme.Light_OnBackground
 import com.example.spendless.presentation.theme.Schemes_Primary
 import com.example.spendless.presentation.util.KeyBoardItem
+import com.example.spendless.presentation.util.PinOptions
 import com.example.spendless.presentation.util.SharedComponent
 import com.example.spendless.presentation.util.Utils
 
@@ -72,6 +73,7 @@ fun CreatePinPage(
                 KeyBoardItem(
                     isEnabled = state.buttonEnabled,
                     text = keyboardItem,
+                    pinOptions = PinOptions.IsCreatePin,
                     onCreatePinActions = onActions,
                 )
             }

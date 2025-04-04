@@ -95,18 +95,17 @@ class RepeatPinViewModel @Inject constructor() : ViewModel() {
 
         val newRepeatPin = _repeatPinUiState.value.repeatPin
 
-//        Log.d("MyTag", "repeat Pin: ${_repeatPinUiState.value.repeatPin}")
-//        Log.d("MyTag", "create Pin: ${_repeatPinUiState.value.username.pin}")
 
-        //if repeatPin == createPin navigate to OnBoardingPreferences
         if (newRepeatPin.length == 5) {
             if (newRepeatPin != _repeatPinUiState.value.username.pin) {
+                //repeatPin != createPin show banner
                 _events.send(RepeatPinEvents.ShowBanner)
                 resetUiState()
             } else {
                 _repeatPinUiState.update { newState->
                     newState.copy(buttonEnabled = false)
                 }
+                //repeatPin == createPin navigate to OnBoardingPreferences
                 _events.send(
                     RepeatPinEvents.OnboardingPreferencesPage(
                         username = _repeatPinUiState.value.username

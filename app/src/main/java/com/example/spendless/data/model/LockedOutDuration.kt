@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class LockedOutDuration(
     val isSeconds: Boolean = true,
-    val lockedOutDuration: String = "15"
+    val lockedOutDuration: Long = 15
 )

@@ -1,6 +1,7 @@
 package com.example.spendless.presentation.navigation
 
 import android.annotation.SuppressLint
+import android.os.CountDownTimer
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -12,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -31,6 +33,8 @@ import com.example.spendless.presentation.screens.createPinPage.CreatePinActions
 import com.example.spendless.presentation.screens.createPinPage.CreatePinEvents
 import com.example.spendless.presentation.screens.createPinPage.CreatePinPage
 import com.example.spendless.presentation.screens.createPinPage.CreatePinViewModel
+import com.example.spendless.presentation.screens.dashBoardingPage.DashBoardingActions
+import com.example.spendless.presentation.screens.dashBoardingPage.DashBoardingViewModel
 import com.example.spendless.presentation.screens.loginPage.LogInEvents
 import com.example.spendless.presentation.screens.loginPage.LogInPage
 import com.example.spendless.presentation.screens.loginPage.LogInViewModel
@@ -38,6 +42,9 @@ import com.example.spendless.presentation.screens.onboardingPreferencesPage.Onbo
 import com.example.spendless.presentation.screens.onboardingPreferencesPage.OnboardingPreferencesEvents
 import com.example.spendless.presentation.screens.onboardingPreferencesPage.OnboardingPreferencesPage
 import com.example.spendless.presentation.screens.onboardingPreferencesPage.OnboardingPreferencesViewModel
+import com.example.spendless.presentation.screens.promptPinPage.PromptPinActions
+import com.example.spendless.presentation.screens.promptPinPage.PromptPinEvents
+import com.example.spendless.presentation.screens.promptPinPage.PromptPinViewModel
 import com.example.spendless.presentation.screens.registerPage.RegisterEvents
 import com.example.spendless.presentation.screens.registerPage.RegisterPage
 import com.example.spendless.presentation.screens.registerPage.RegisterViewModel
@@ -46,12 +53,14 @@ import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinEvents
 import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinPage
 import com.example.spendless.presentation.screens.repeatPinPage.RepeatPinViewModel
 import com.example.spendless.presentation.screens.shared.SharedActions
+import com.example.spendless.presentation.screens.shared.SharedActions.*
 import com.example.spendless.presentation.screens.shared.SharedUiState
 import com.example.spendless.presentation.screens.shared.SharedViewModel
 import com.example.spendless.presentation.theme.Schemes_Background
 import com.example.spendless.presentation.theme.Schemes_Primary
 import com.example.spendless.presentation.util.BannerHandler
 import com.example.spendless.presentation.util.CustomNavType
+import kotlinx.coroutines.flow.collectLatest
 import kotlin.reflect.typeOf
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -119,7 +128,6 @@ fun Navigation(
                 state = registerUiState,
                 onActions = registerViewModel::onActions
             )
-
         }
 
         composable<NavigationScreens.CreatePinPage> { entry ->
@@ -297,10 +305,12 @@ fun Navigation(
                         ).show()
 
                         is OnboardingPreferencesEvents.NavigateToDashBoard -> {
-                            navHostController.navigate(NavigationScreens.DashBoardingPage(
-                                username = events.username
-                            )){
-                                popUpTo(0){
+                            navHostController.navigate(
+                                NavigationScreens.DashBoardingPage(
+                                    username = events.username
+                                )
+                            ) {
+                                popUpTo(0) {
                                     inclusive = true
                                 }
                             }
@@ -310,7 +320,9 @@ fun Navigation(
             }
 
             OnboardingPreferencesPage(
-                modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
                 state = onboardingPreferencesUiState,
                 onActions = onboardingPreferencesViewModel::onActions,
             )
@@ -322,10 +334,13 @@ fun Navigation(
 
             val args = entry.toRoute<NavigationScreens.DashBoardingPage>()
 
+            val dashBoardingViewModel = hiltViewModel<DashBoardingViewModel>()
+            val dashBoardingUiState by dashBoardingViewModel.dashBoardingUiState.collectAsStateWithLifecycle()
+
             LaunchedEffect(Unit) {
-                //updating username in sharedViewModel uiState
-                sharedViewModel.onActions(SharedActions.UpdateUsername(username = args.username))
+                dashBoardingViewModel.onAction(DashBoardingActions.UpdateUsername(username = args.username))
             }
+
 
             Box(
                 modifier = Modifier
@@ -335,24 +350,42 @@ fun Navigation(
             ) {
                 Button(
                     onClick = {
-                        navHostController.navigate(NavigationScreens.LogInPage){
-                            popUpTo(0){
-                                inclusive = true
-                            }
-                        }
+
                     }
                 ) {
-                    Text("Navigate to home screen")
+                    Text("Check actions")
                 }
             }
         }
 
-        dialog<NavigationScreens.PromptPinPage>{
+        dialog<NavigationScreens.PromptPinPage> {
+            val backstackEntry = navHostController.currentBackStack.value
+            Log.d("BackstackEntry", "$backstackEntry")
+
+            val promptPinViewModel = hiltViewModel<PromptPinViewModel>()
+            val promptPinUiState by promptPinViewModel.promptPinUiState.collectAsStateWithLifecycle()
+
+
+            LaunchedEffect(promptPinViewModel.events) {
+                promptPinViewModel.events.collectLatest { events ->
+                    when (events) {
+                        PromptPinEvents.PinCorrect -> {
+
+                        }
+
+                        PromptPinEvents.PinIncorrect -> {
+                            //show banner
+                            val bannerText = context.getString(R.string.wrong_pin)
+                            sharedViewModel.onActions(ShowBanner(bannerText = bannerText))
+                        }
+
+                    }
+                }
+            }
 
         }
 
     }
-
 
 
 }

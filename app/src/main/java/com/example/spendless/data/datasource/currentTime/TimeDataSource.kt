@@ -1,8 +1,8 @@
-package com.example.spendless.domain.repository
+package com.example.spendless.data.datasource.currentTime
 
 import com.example.spendless.data.model.SessionExpiryDuration
 
-interface CurrentTimeRepository {
+interface TimeDataSource {
     fun getCurrentTime(): Long
     fun updateSessionExpiryDuration(sessionExpiryDuration: SessionExpiryDuration): Long
 }

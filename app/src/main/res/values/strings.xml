@@ -25,6 +25,7 @@
     <string name="decimal_separator">Decimal separator</string>
     <string name="thousands_separator">Thousands separator</string>
     <string name="start_tracking">Start Tracking!</string>
+    <string name="wrong_pin">Wrong PIN</string>
     
     
 </resources>

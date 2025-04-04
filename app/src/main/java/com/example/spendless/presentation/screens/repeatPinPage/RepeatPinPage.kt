@@ -22,6 +22,7 @@ import com.example.spendless.R
 import com.example.spendless.presentation.theme.Light_OnBackground
 import com.example.spendless.presentation.theme.Schemes_Primary
 import com.example.spendless.presentation.util.KeyBoardItem
+import com.example.spendless.presentation.util.PinOptions
 import com.example.spendless.presentation.util.SharedComponent
 import com.example.spendless.presentation.util.Utils
 
@@ -71,7 +72,7 @@ fun RepeatPinPage(
             items(Utils.keyboardSet) { keyboardItem ->
                 KeyBoardItem(
                     isEnabled = state.buttonEnabled,
-                    isCreatePin = false,
+                    pinOptions = PinOptions.IsRepeatPin,
                     text = keyboardItem,
                     onRepeatPinActions = onActions,
                 )

@@ -14,8 +14,9 @@ data class Username(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val username: String = "",
     val pin: String = "",
+    val currentTime: Long = 0,
     @TypeConverters(Converters::class)
     val preferencesFormat: PreferencesFormat = PreferencesFormat(),
     val sessionExpiryDuration: SessionExpiryDuration = SessionExpiryDuration(),
-    val lockedOutDuration: LockedOutDuration = LockedOutDuration(),
+    val lockedOutDuration: LockedOutDuration = LockedOutDuration()
 )

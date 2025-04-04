@@ -80,7 +80,7 @@ class LogInViewModel @Inject constructor(
         if (username.isNotEmpty() && pin.isNotEmpty()) {
             val usernameExists = localUseCase.isUsernameExists(enteredUsername = username)
             if (usernameExists) {
-                val encryptedPinAsString = localUseCase.getStoredPin(enteredUsername = username)
+                val encryptedPinAsString = localUseCase.getUserStoredPin(enteredUsername = username)
                 Log.d("MyTag", "encryptedPinBase64: $encryptedPinAsString")
                 val encryptedPinToByteArray = encryptedPinAsString?.fromBase64()
                 Log.d("MyTag", "encryptedPinToByteArray: $encryptedPinToByteArray")
